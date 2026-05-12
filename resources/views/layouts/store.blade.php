@@ -251,6 +251,15 @@
                 <div class="d-flex flex-wrap gap-3 reveal d3">
                     <a href="{{Route('login')}}" class="bta bta-out"><i class="bi bi-sliders"></i> S'inscrire</a>
                 </div>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <button type="submit" class="s-link border-0 bg-transparent text-start w-100 " style="background-color: white">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
