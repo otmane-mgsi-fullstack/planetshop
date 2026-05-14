@@ -7,7 +7,8 @@ use App\Http\Controllers\DashProductController;
 use App\Http\Controllers\DashCategoryController;
 use App\Http\Controllers\DashClientController;
 use App\Http\Controllers\DashOrderController;
-
+use App\Http\Controllers\ProductPageController;
+// Page d'un produit (accessible à tous)
 /*
 |--------------------------------------------------------------------------
 | AUTH ROUTES (login/register)
@@ -23,6 +24,16 @@ require __DIR__.'/auth.php';
 Route::get('/', [ShopController::class, 'index'])
     ->name('store.index');
 
+Route::get('/produit/{slug}', [ProductPageController::class, 'show'])->name('product.show');
+
+
+Route::post('/commander/{id}', [\App\Http\Controllers\ProductPageController::class, 'commander'])
+    ->name('commander.directement')
+    ->middleware('auth');
+
+
+// web.php
+//Route::get('/product/{slug}', [ProductPageController::class, 'show'])->name('product.show');
 /*
 |--------------------------------------------------------------------------
 | LOGOUT (must be authenticated)
@@ -69,11 +80,16 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/clients', [DashClientController::class, 'index'])
             ->name('dash.client');
 
-        Route::post('/clients', [DashClientController::class, 'store'])->name('clients.store');
-        Route::put('/clients/{client}', [DashClientController::class, 'update'])->name('clients.update');
-        Route::post('/clients/{client}/toggle-status', [DashClientController::class, 'toggleStatus'])->name('clients.toggle.status');
-        Route::delete('/clients/{client}', [DashClientController::class, 'destroy'])->name('clients.destroy');
-
+        Route::post('/clients', [DashClientController::class, 'store'])
+            ->name('clients.store');
+        Route::put('/clients/{client}', [DashClientController::class, 'update'])
+            ->name('clients.update');
+        Route::post('/clients/{client}/toggle-status', [DashClientController::class, 'toggleStatus'])
+            ->name('clients.toggle.status');
+        Route::delete('/clients/{client}', [DashClientController::class, 'destroy'])
+            ->name('clients.destroy');
+        Route::post('/clients/{client}/toggle', [App\Http\Controllers\DashClientController::class, 'toggleStatus'])
+            ->name('clients.toggle');
         /*
         | ORDERS
         */

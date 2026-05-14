@@ -16,10 +16,8 @@ class Client extends Model
         'nom',
         'email',
         'telephone',
-        'mot_de_passe',
         'adresse',
         'ville',
-        'code_postal',
         'pays',
         'actif',
     ];

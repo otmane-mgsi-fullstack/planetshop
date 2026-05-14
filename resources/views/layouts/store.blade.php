@@ -225,7 +225,7 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" href="{{ url('/') }}"><span>NEX</span>CORE</a>
+        <a class="navbar-brand" href="{{ url('/') }}"><span>PLANET</span>SHOP</a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navM" style="color:var(--text-mid)">
             <i class="bi bi-list" style="font-size:1.5rem"></i>
         </button>

@@ -267,7 +267,9 @@
                                             <span style="font-size:.66rem;color:var(--text-dim)">Sur commande</span>
                                         @endif
                                     </div>
-                                    <button class="badd" {{ isset($product->is_featured) && $product->is_featured ? 'style="background:var(--accent);color:#000;border-color:var(--accent)"' : '' }}><i class="bi bi-bag-plus"></i> Ajouter</button>
+                                    <button class="badd" {{ isset($product->is_featured) && $product->is_featured ?
+                                        'style="background:var(--accent);color:#000;border-color:var(--accent)"' : '' }}>
+                                        <a href="{{ route('product.show', $product->slug) }}"><i class="bi bi-bag-plus"></i>Voir le produit</a> </button>
                                 </div>
                             </div>
                         </div>
@@ -322,37 +324,96 @@
         </div>
     </section>
 
-    <!-- FEATURED -->
-    <section class="sec sec-dark">
-        <div class="container">
-            <div class="feat reveal">
-                <div class="row align-items-center gy-4">
-                    <div class="col-lg-7">
-                        <div class="ftag"><i class="bi bi-stars"></i> Configuration du mois</div>
-                        <h2 style="font-size:clamp(1.4rem,3.2vw,2.3rem);font-weight:900;margin-bottom:.9rem;line-height:1.15">
-                            NexCore TITAN X <span style="color:var(--accent)">Ultimate</span><br>
-                            <span style="color:var(--text-mid);font-size:78%;font-weight:500">Prêt pour le futur.</span>
-                        </h2>
-                        <p style="color:var(--text-mid);max-width:440px;margin-bottom:1.4rem;font-size:.9rem">La configuration de référence. RTX 5090, watercooling 360mm, boîtier full-tour RGB synchronisé.</p>
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="#" class="bta bta-fill">Voir la config</a>
-                            <a href="#" class="bta bta-out">Personnaliser</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-5">
-                        <table class="stbl">
-                            <tr><td>Processeur</td><td><span class="hi">Intel Core i9-15900KS</span></td></tr>
-                            <tr><td>Carte graphique</td><td><span class="hi">NVIDIA RTX 5090 24 Go</span></td></tr>
-                            <tr><td>RAM</td><td><span class="hi">128 Go DDR5 7200 MHz</span></td></tr>
-                            <tr><td>Stockage</td><td><span class="hi">4 To NVMe Gen5 + 8 To HDD</span></td></tr>
-                            <tr><td>Refroidissement</td><td><span class="hi">AIO 360mm ARGB</span></td></tr>
-                            <tr><td>Prix</td><td><span style="color:var(--accent);font-family:var(--ff-d);font-size:1.08rem;font-weight:700">5 999 €</span></td></tr>
-                        </table>
-                    </div>
-                </div>
+
+
+    <!-- FEATURED SLIDER -->
+    <section class="sec sec-dark" style="padding:0;overflow:hidden">
+        <style>
+            #hero-slider .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;transform:scale(1.04);transition:opacity .9s ease,transform .9s ease}
+            #hero-slider .slide.active{opacity:1;transform:scale(1)}
+            #hero-slider .hs-dot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.3);cursor:pointer;transition:background .3s,width .3s}
+            #hero-slider .hs-dot.active{background:#fff;width:48px}
+            #hero-slider .hs-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background .2s}
+            #hero-slider .hs-nav:hover{background:rgba(0,0,0,.6)}
+        </style>
+
+        <div style="position:relative;width:100%;height:520px;overflow:hidden;background:#000" id="hero-slider">
+            <!-- IMAGE 1 -->
+            <div class="slide active"
+                 style="position:absolute;inset:0;
+        background:url('{{ asset('storage/images/slid1.jpeg') }}') center/contain no-repeat">
             </div>
+
+            <!-- IMAGE 2 -->
+            <div class="slide"
+                 style="position:absolute;inset:0;
+        background:url('{{ asset('storage/images/slid2.jpeg') }}') center/contain no-repeat">
+            </div>
+
+            <!-- IMAGE 3 -->
+            <div class="slide"
+                 style="position:absolute;inset:0;
+        background:url('{{ asset('storage/images/slid3.jpeg') }}') center/contain no-repeat">
+            </div>
+
+
+            <!-- Flèches -->
+            <button class="hs-nav" style="left:1.2rem" id="hs-prev">&#8592;</button>
+            <button class="hs-nav" style="right:1.2rem" id="hs-next">&#8594;</button>
+
+            <!-- Dots -->
+            <div style="position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:10">
+                <div class="hs-dot active" data-i="0"></div>
+                <div class="hs-dot" data-i="1"></div>
+                <div class="hs-dot" data-i="2"></div>
+            </div>
+
+            <!-- Barre -->
+            <div id="hs-bar"
+                 style="position:absolute;bottom:0;left:0;height:3px;background:#fff;z-index:10;width:0%">
+            </div>
+
         </div>
     </section>
+
+    <script>
+        (function(){
+            const slides=document.querySelectorAll('#hero-slider .slide');
+            const dots=document.querySelectorAll('#hero-slider .hs-dot');
+            const bar=document.getElementById('hs-bar');
+            let cur=0,autoT,progT,prog=0;
+            const DELAY=5000;
+            function go(n){
+                slides[cur].classList.remove('active');
+                dots[cur].classList.remove('active');
+                cur=(n+slides.length)%slides.length;
+                slides[cur].classList.add('active');
+                dots[cur].classList.add('active');
+                resetProg();
+            }
+            function resetProg(){
+                clearInterval(progT);prog=0;bar.style.width='0%';
+                progT=setInterval(()=>{prog+=100/(DELAY/100);bar.style.width=Math.min(prog,100)+'%';if(prog>=100)clearInterval(progT);},100);
+            }
+            function play(){clearInterval(autoT);autoT=setInterval(()=>go(cur+1),DELAY);}
+            document.getElementById('hs-prev').onclick=()=>{go(cur-1);play();};
+            document.getElementById('hs-next').onclick=()=>{go(cur+1);play();};
+            dots.forEach(d=>d.onclick=()=>{go(+d.dataset.i);play();});
+            let tx=0;
+            const sl=document.getElementById('hero-slider');
+            sl.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+            sl.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-tx)>40){go(e.changedTouches[0].clientX<tx?cur+1:cur-1);play();}});
+            play();resetProg();
+        })();
+    </script>
+
+
+
+
+
+
+
+
 
     <!-- PÉRI -->
     <section class="sec sec-dp">

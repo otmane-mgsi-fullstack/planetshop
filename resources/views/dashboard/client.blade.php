@@ -516,7 +516,7 @@
                                             title="Modifier">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <form action="{{ route('clients.toggleStatus', $client->id) }}"
+                                    <form action="{{ route('clients.toggle', $client->id) }}"
                                           method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit"

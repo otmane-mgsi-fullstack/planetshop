@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashClientController extends Controller
 {
+
     public function index(Request $request)
     {
         $query = Client::query();
