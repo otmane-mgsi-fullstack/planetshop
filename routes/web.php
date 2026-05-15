@@ -8,6 +8,7 @@ use App\Http\Controllers\DashCategoryController;
 use App\Http\Controllers\DashClientController;
 use App\Http\Controllers\DashOrderController;
 use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\DashSupportController;
 // Page d'un produit (accessible à tous)
 /*
 |--------------------------------------------------------------------------
@@ -98,4 +99,12 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::put('/orders/{order}', [DashOrderController::class, 'update'])->name('orders.update');
         Route::delete('/orders/{order}', [DashOrderController::class, 'destroy'])->name('orders.destroy');
+
+
+
+        //Route::prefix('admin/support')->name('admin.support.')->group(function () {
+            Route::get('/', [DashSupportController::class, 'index'])->name('dash.support');
+            Route::post('/{id}/update-status', [DashSupportController::class, 'updateStatus'])->name('updateStatus');
+            Route::delete('/{id}', [DashSupportController::class, 'destroy'])->name('destroy');
+       // });
     });

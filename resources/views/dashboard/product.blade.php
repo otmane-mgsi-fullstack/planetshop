@@ -348,7 +348,7 @@
 
                             <div class="col-lg-4">
                                 <label>Prix</label>
-                                <input type="number" name="prix" class="form-control product-input" style="height:48px;">
+                                <input type="number" name="prix" class="form-control product-input" style="height:48px;" required>
                             </div>
 
                             <div class="col-lg-4">

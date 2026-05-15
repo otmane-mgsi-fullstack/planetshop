@@ -490,7 +490,7 @@
                                 </button>
 
 
-                                <form
+                              <!--  <form
                                     action="{{ route('categories.destroy', $category->id) }}"
                                     method="POST"
                                 >
@@ -501,6 +501,7 @@
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>
+                               -->
 
                             </div>
 

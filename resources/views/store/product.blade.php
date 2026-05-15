@@ -130,7 +130,7 @@
 
                     @php
                         $message = "Bonjour, je souhaite avoir plus d'informations sur le produit : $product->nom ";
-                        $url = "https://wa.me/212610568581?text=" . urlencode($message);
+                        $url = "https://wa.me/212672831364?text=". urlencode($message);
                     @endphp
 
 

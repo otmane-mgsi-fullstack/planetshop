@@ -207,21 +207,19 @@
     <section class="sec sec-base" id="shop">
         <div class="container">
             <div class="shdr reveal"><div><div class="sey">Catalogue</div><h2 class="stitle">PCs Gaming <span class="gt">Bestsellers</span></h2></div><a href="#" class="sa">Tout voir <i class="bi bi-arrow-right"></i></a></div>
+
             <div class="pills reveal d1">
-                <button class="pill active">Tous</button>
-                @if(isset($categories) && $categories->count() > 0)
-                    @foreach($categories as $category)
-                        <button class="pill">{{ $category->nom ?? $category->name ?? 'Catégorie' }}</button>
-                    @endforeach
-                @else
-                    <button class="pill">Entrée de gamme</button><button class="pill">1080p Max</button><button class="pill">1440p Gaming</button><button class="pill">4K Ultra</button><button class="pill">Streaming</button>
-                @endif
+                <button class="pill active" data-id="all">Tous</button>
+                @foreach($categories as $category)
+                    <button class="pill" data-id="{{ $category->id }}">{{ $category->nom ?? $category->name }}</button>
+                @endforeach
             </div>
+
             <div class="row g-4">
                 @if(isset($products) && $products->count() > 0)
                     @foreach($products as $index => $product)
                         @php $delay = ($index % 4) + 1; @endphp
-                        <div class="col-sm-6 col-lg-3 reveal d{{ $delay }}">
+                            <div class="col-sm-6 col-lg-3 reveal d{{ $delay }}" data-cat="{{ $product->categorie_id }}">
                             <div class="pcard" {{ isset($product->is_featured) && $product->is_featured ? 'style="border-color:rgba(255,107,0,.22)"' : '' }}>
                                 <div class="cimg">
                                     @if(isset($product->is_new) && $product->is_new)
@@ -326,86 +324,6 @@
 
 
 
-    <!-- FEATURED SLIDER -->
-    <section class="sec sec-dark" style="padding:0;overflow:hidden">
-        <style>
-            #hero-slider .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;transform:scale(1.04);transition:opacity .9s ease,transform .9s ease}
-            #hero-slider .slide.active{opacity:1;transform:scale(1)}
-            #hero-slider .hs-dot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.3);cursor:pointer;transition:background .3s,width .3s}
-            #hero-slider .hs-dot.active{background:#fff;width:48px}
-            #hero-slider .hs-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background .2s}
-            #hero-slider .hs-nav:hover{background:rgba(0,0,0,.6)}
-        </style>
-
-        <div style="position:relative;width:100%;height:520px;overflow:hidden;background:#000" id="hero-slider">
-            <!-- IMAGE 1 -->
-            <div class="slide active"
-                 style="position:absolute;inset:0;
-        background:url('{{ asset('storage/images/slid1.jpeg') }}') center/contain no-repeat">
-            </div>
-
-            <!-- IMAGE 2 -->
-            <div class="slide"
-                 style="position:absolute;inset:0;
-        background:url('{{ asset('storage/images/slid2.jpeg') }}') center/contain no-repeat">
-            </div>
-
-            <!-- IMAGE 3 -->
-            <div class="slide"
-                 style="position:absolute;inset:0;
-        background:url('{{ asset('storage/images/slid3.jpeg') }}') center/contain no-repeat">
-            </div>
-
-
-            <!-- Flèches -->
-            <button class="hs-nav" style="left:1.2rem" id="hs-prev">&#8592;</button>
-            <button class="hs-nav" style="right:1.2rem" id="hs-next">&#8594;</button>
-
-            <!-- Dots -->
-            <div style="position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:10">
-                <div class="hs-dot active" data-i="0"></div>
-                <div class="hs-dot" data-i="1"></div>
-                <div class="hs-dot" data-i="2"></div>
-            </div>
-
-            <!-- Barre -->
-            <div id="hs-bar"
-                 style="position:absolute;bottom:0;left:0;height:3px;background:#fff;z-index:10;width:0%">
-            </div>
-
-        </div>
-    </section>
-
-    <script>
-        (function(){
-            const slides=document.querySelectorAll('#hero-slider .slide');
-            const dots=document.querySelectorAll('#hero-slider .hs-dot');
-            const bar=document.getElementById('hs-bar');
-            let cur=0,autoT,progT,prog=0;
-            const DELAY=5000;
-            function go(n){
-                slides[cur].classList.remove('active');
-                dots[cur].classList.remove('active');
-                cur=(n+slides.length)%slides.length;
-                slides[cur].classList.add('active');
-                dots[cur].classList.add('active');
-                resetProg();
-            }
-            function resetProg(){
-                clearInterval(progT);prog=0;bar.style.width='0%';
-                progT=setInterval(()=>{prog+=100/(DELAY/100);bar.style.width=Math.min(prog,100)+'%';if(prog>=100)clearInterval(progT);},100);
-            }
-            function play(){clearInterval(autoT);autoT=setInterval(()=>go(cur+1),DELAY);}
-            document.getElementById('hs-prev').onclick=()=>{go(cur-1);play();};
-            document.getElementById('hs-next').onclick=()=>{go(cur+1);play();};
-            dots.forEach(d=>d.onclick=()=>{go(+d.dataset.i);play();});
-            let tx=0;
-            const sl=document.getElementById('hero-slider');
-            sl.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
-            sl.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-tx)>40){go(e.changedTouches[0].clientX<tx?cur+1:cur-1);play();}});
-            play();resetProg();
-        })();
-    </script>
 
 
 
@@ -418,34 +336,205 @@
     <!-- PÉRI -->
     <section class="sec sec-dp">
         <div class="container">
-            <div class="shdr reveal"><div><div class="sey">Accessoires</div><h2 class="stitle">Périphériques <span class="gt">Gaming</span></h2></div><a href="#" class="sa">Tout voir <i class="bi bi-arrow-right"></i></a></div>
+            <div class="shdr reveal">
+                <div>
+                    <div class="sey">Accessoires</div>
+                    <h2 class="stitle">Périphériques <span class="gt">Gaming</span></h2>
+                </div>
+                <a href="#" class="sa">Tout voir <i class="bi bi-arrow-right"></i></a>
+            </div>
+
             <div class="row g-4">
-                <div class="col-6 col-md-3 reveal d1"><div class="pcard"><div class="cimg" style="min-height:125px"><button class="wbt"><i class="bi bi-heart"></i></button><div class="pemo" style="font-size:3rem">🖱️</div></div><div class="cbody"><div class="ccat">Souris FPS</div><div class="ctit">Ghost M1 Sans Fil</div><div class="rat"><span class="rc">(341)</span></div><div class="pr"><span class="price">890 MAD</span><span class="pold">1190 MAD</span></div><button class="badd"><i class="bi bi-bag-plus"></i> Ajouter</button></div></div></div>
-                <div class="col-6 col-md-3 reveal d2"><div class="pcard"><div class="cimg" style="min-height:125px"><button class="wbt"><i class="bi bi-heart"></i></button><div class="pemo" style="font-size:3rem">⌨️</div></div><div class="cbody"><div class="ccat">Clavier Mécanique</div><div class="ctit">Blade K75 RGB</div><div class="rat"><span class="rc">(205)</span></div><div class="pr"><span class="price">1290 MAD</span></div><button class="badd"><i class="bi bi-bag-plus"></i> Ajouter</button></div></div></div>
-                <div class="col-6 col-md-3 reveal d3"><div class="pcard"><div class="cimg" style="min-height:125px"><span class="cbg bpromo">−15%</span><button class="wbt"><i class="bi bi-heart"></i></button><div class="pemo" style="font-size:3rem">🎧</div></div><div class="cbody"><div class="ccat">Casque 7.1</div><div class="ctit">Echo H9 Surround</div><div class="rat"><span class="rc">(178)</span></div><div class="pr"><span class="price">1090 MAD</span><span class="pold">1290 MAD</span></div><button class="badd"><i class="bi bi-bag-plus"></i> Ajouter</button></div></div></div>
-                <div class="col-6 col-md-3 reveal d4"><div class="pcard"><div class="cimg" style="min-height:125px"><button class="wbt"><i class="bi bi-heart"></i></button><div class="pemo" style="font-size:3rem">🖥️</div></div><div class="cbody"><div class="ccat">Écran 4K 144Hz</div><div class="ctit">Vision 27Q IPS HDR</div><div class="rat"><span class="rc">(90)</span></div><div class="pr"><span class="price">5490 MAD</span></div><button class="badd"><i class="bi bi-bag-plus"></i> Ajouter</button></div></div></div>
+                @if(isset($peripheriques) && $peripheriques->count() > 0)
+                    @foreach($peripheriques as $index => $product)
+                        @php $delay = ($index % 4) + 1; @endphp
+                        <div class="col-6 col-md-3 reveal d{{ $delay }}">
+                            <div class="pcard {{ isset($product->is_featured) && $product->is_featured ? 'style=border-color:rgba(255,107,0,.22)' : '' }}">
+                                <div class="cimg" style="min-height:125px">
+                                    @if(isset($product->is_new) && $product->is_new)
+                                        <span class="cbg bnew">NOUVEAU</span>
+                                    @elseif(isset($product->prix_promo))
+                                        <span class="cbg bpromo">PROMO</span>
+                                    @endif
+                                    <button class="wbt"><i class="bi bi-heart"></i></button>
+                                    <div class="pemo">
+                                        @if(isset($product->miniature) && $product->miniature)
+                                            <img src="{{ asset('storage/' . $product->miniature) }}"
+                                                 height="110px" width="110px"
+                                                 style="object-fit:contain;margin-top:8%">
+                                        @else
+                                            {{-- Icône emoji par défaut selon le nom du produit --}}
+                                            @php
+                                                $nom = strtolower($product->nom ?? '');
+                                                if (str_contains($nom, 'souris') || str_contains($nom, 'mouse')) {
+                                                    $emoji = '🖱️';
+                                                } elseif (str_contains($nom, 'clavier') || str_contains($nom, 'keyboard')) {
+                                                    $emoji = '⌨️';
+                                                } elseif (str_contains($nom, 'casque') || str_contains($nom, 'headset') || str_contains($nom, 'audio')) {
+                                                    $emoji = '🎧';
+                                                } elseif (str_contains($nom, 'écran') || str_contains($nom, 'moniteur') || str_contains($nom, 'monitor')) {
+                                                    $emoji = '🖥️';
+                                                } elseif (str_contains($nom, 'manette') || str_contains($nom, 'gamepad')) {
+                                                    $emoji = '🎮';
+                                                } elseif (str_contains($nom, 'webcam') || str_contains($nom, 'caméra')) {
+                                                    $emoji = '📷';
+                                                } elseif (str_contains($nom, 'microphone') || str_contains($nom, 'micro')) {
+                                                    $emoji = '🎙️';
+                                                } elseif (str_contains($nom, 'tapis') || str_contains($nom, 'mousepad')) {
+                                                    $emoji = '🟫';
+                                                } else {
+                                                    $emoji = '🕹️';
+                                                }
+                                            @endphp
+                                            <div style="font-size:3rem;display:flex;align-items:center;justify-content:center;height:110px">
+                                                {{ $emoji }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="cbody">
+                                    <div class="ccat">{{ $product->category->nom ?? $product->category->name ?? 'Périphérique' }}</div>
+                                    <div class="ctit">{{ $product->nom ?? 'Produit' }}</div>
+
+                                    @if(isset($product->note_moyenne) && $product->note_moyenne)
+                                        <div class="rat">
+                                            <span class="rc">({{ $product->nombre_avis ?? 0 }})</span>
+                                        </div>
+                                    @endif
+
+                                    <div class="pr">
+                                        @if(isset($product->prix_promo) && $product->prix_promo)
+                                            <div>
+                                                <span class="price">{{ number_format($product->prix_promo, 2, ',', ' ') }} MAD</span>
+                                                <span class="pold">{{ number_format($product->prix ?? 0, 2, ',', ' ') }} MAD</span>
+                                            </div>
+                                        @else
+                                            <span class="price">{{ number_format($product->prix ?? 0, 2, ',', ' ') }} MAD</span>
+                                        @endif
+
+                                        @if(isset($product->stock) && $product->stock > 0)
+                                            <span style="font-size:.65rem;background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.25);padding:.13rem .48rem;border-radius:4px">En stock</span>
+                                        @else
+                                            <span style="font-size:.66rem;color:var(--text-dim)">Sur commande</span>
+                                        @endif
+                                    </div>
+
+                                    <button class="badd">
+                                        <a href="{{ route('product.show', $product->slug) }}"
+                                           style="color:inherit;text-decoration:none">
+                                            <i class="bi bi-bag-plus"></i> Voir le produit
+                                        </a>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    {{-- Fallback si aucun périphérique en base --}}
+                    <div class="col-12 text-center" style="color:var(--text-dim);padding:2rem 0">
+                        <i class="bi bi-controller" style="font-size:2.5rem;opacity:.3"></i>
+                        <p style="margin-top:.8rem;opacity:.5">Aucun périphérique disponible pour le moment.</p>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
 
-    <!-- TRUST -->
+
+
+
+
+    <!-- TRUST + SLIDER -->
     <section class="sec sec-dark">
-        <div class="container"><div class="row g-3">
-                <div class="col-6 col-md-3 reveal d1"><div class="tcrd"><div class="tico"><i class="bi bi-truck"></i></div><div class="ttit">Livraison rapide</div><div class="tdesc">Expédié 24h, livré 48h partout en France</div></div></div>
-                <div class="col-6 col-md-3 reveal d2"><div class="tcrd"><div class="tico"><i class="bi bi-shield-check"></i></div><div class="ttit">Garantie 6 mois</div><div class="tdesc">Prise en charge totale pièces & main d'œuvre</div></div></div>
-                <div class="col-6 col-md-3 reveal d3"><div class="tcrd"><div class="tico"><i class="bi bi-cpu"></i></div><div class="ttit">Assemblé Au Maroc</div><div class="tdesc">Chaque PC testé 24h avant expédition</div></div></div>
-                <div class="col-6 col-md-3 reveal d4"><div class="tcrd"><div class="tico"><i class="bi bi-headset"></i></div><div class="ttit">Support 7j/7</div><div class="tdesc">Experts par chat, mail ou téléphone</div></div></div>
-            </div></div>
+        <div class="container">
+            <div class="row g-4 align-items-center">
+
+                <!-- TRUST : col-6 -->
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-6 reveal d1"><div class="tcrd"><div class="tico"><i class="bi bi-truck"></i></div><div class="ttit">Livraison rapide</div><div class="tdesc">Expédié 24h, livré 48h partout en France</div></div></div>
+                        <div class="col-6 reveal d2"><div class="tcrd"><div class="tico"><i class="bi bi-shield-check"></i></div><div class="ttit">Garantie 6 mois</div><div class="tdesc">Prise en charge totale pièces & main d'œuvre</div></div></div>
+                        <div class="col-6 reveal d3"><div class="tcrd"><div class="tico"><i class="bi bi-cpu"></i></div><div class="ttit">Assemblé Au Maroc</div><div class="tdesc">Chaque PC testé 24h avant expédition</div></div></div>
+                        <div class="col-6 reveal d4"><div class="tcrd"><div class="tico"><i class="bi bi-headset"></i></div><div class="ttit">Support 7j/7</div><div class="tdesc">Experts par chat, mail ou téléphone</div></div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDER : col-6 -->
+                <div class="col-lg-6 reveal d2">
+                    <style>
+                        #hero-slider .slide{position:absolute;inset:0;opacity:0;transition:opacity .9s ease,transform .9s ease;transform:scale(1.04)}
+                        #hero-slider .slide.active{opacity:1;transform:scale(1)}
+                        #hero-slider .hs-dot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.3);cursor:pointer;transition:background .3s,width .3s}
+                        #hero-slider .hs-dot.active{background:#fff;width:48px}
+                        #hero-slider .hs-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background .2s}
+                        #hero-slider .hs-nav:hover{background:rgba(0,0,0,.6)}
+                    </style>
+                    <div style="position:relative;width:100%;height:360px;overflow:hidden;border-radius:12px" id="hero-slider">
+                        <div class="slide active" style="background:url('{{ asset('storage/images/slid1.jpeg') }}') center/cover no-repeat"></div>
+                        <div class="slide"       style="background:url('{{ asset('storage/images/slid2.jpeg') }}') center/cover no-repeat"></div>
+                        <div class="slide"       style="background:url('{{ asset('storage/images/slid3.jpeg') }}') center/cover no-repeat"></div>
+
+                        <button class="hs-nav" style="left:1rem"  id="hs-prev">&#8592;</button>
+                        <button class="hs-nav" style="right:1rem" id="hs-next">&#8594;</button>
+
+                        <div style="position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:10">
+                            <div class="hs-dot active" data-i="0"></div>
+                            <div class="hs-dot"        data-i="1"></div>
+                            <div class="hs-dot"        data-i="2"></div>
+                        </div>
+
+                        <div id="hs-bar" style="position:absolute;bottom:0;left:0;height:3px;background:#fff;z-index:10;width:0%"></div>
+                    </div>
+
+                    <script>
+                        (function(){
+                            const slides=document.querySelectorAll('#hero-slider .slide');
+                            const dots=document.querySelectorAll('#hero-slider .hs-dot');
+                            const bar=document.getElementById('hs-bar');
+                            let cur=0,autoT,progT,prog=0;
+                            const DELAY=5000;
+                            function go(n){slides[cur].classList.remove('active');dots[cur].classList.remove('active');cur=(n+slides.length)%slides.length;slides[cur].classList.add('active');dots[cur].classList.add('active');resetProg();}
+                            function resetProg(){clearInterval(progT);prog=0;bar.style.width='0%';progT=setInterval(()=>{prog+=100/(DELAY/100);bar.style.width=Math.min(prog,100)+'%';if(prog>=100)clearInterval(progT);},100);}
+                            function play(){clearInterval(autoT);autoT=setInterval(()=>go(cur+1),DELAY);}
+                            document.getElementById('hs-prev').onclick=()=>{go(cur-1);play();};
+                            document.getElementById('hs-next').onclick=()=>{go(cur+1);play();};
+                            dots.forEach(d=>d.onclick=()=>{go(+d.dataset.i);play();});
+                            let tx=0;
+                            const sl=document.getElementById('hero-slider');
+                            sl.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+                            sl.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-tx)>40){go(e.changedTouches[0].clientX<tx?cur+1:cur-1);play();}});
+                            play();resetProg();
+                        })();
+                    </script>
+                </div>
+
+            </div>
+        </div>
     </section>
 
     <!-- NEWSLETTER -->
-    <section class="sec sec-base"><div class="container"><div class="nls reveal">
+    <section class="sec sec-base"><div class="container row-sm"><div class="nls reveal">
                 <div class="sey" style="margin-bottom:.35rem">Communauté</div>
                 <h2 style="font-size:1.42rem;font-weight:700;margin-bottom:.45rem">Ne rate aucune promo ⚡</h2>
                 <p style="color:var(--text-mid);margin-bottom:1.3rem;font-size:.86rem">Offres exclusives, lancements et guides gaming dans ta boîte mail.</p>
-                <div class="nlw"><input type="email" class="nli" placeholder="ton@email.com"><button class="bta bta-fill">S'inscrire</button></div>
+                <div class="nlw col-6"><a href="{{Route('login')}}" class="bta bta-out"><button class="bta bta-fill">S'inscrire</button></a></div>
                 <p style="font-size:.7rem;color:var(--text-dim);margin-top:.65rem">Pas de spam. Désinscription en 1 clic.</p>
             </div></div></section>
+
+
+
+
+
+
+    <a href="https://wa.me/212672831364" target="_blank" class="wa-fab" aria-label="WhatsApp">
+        <span class="wa-tooltip">Contactez-nous 💬</span>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.11 1.522 5.84L.057 23.4a.5.5 0 0 0 .61.61l5.56-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 0 1-5.001-1.369l-.358-.214-3.712.979.997-3.62-.234-.373A9.79 9.79 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+        </svg>
+    </a>
+
 
 @endsection
 
@@ -513,6 +602,24 @@
             const dy = (e.clientY / innerHeight - .5) * 10;
             const b = document.getElementById('hbg');
             if (b) b.style.transform = `translate(${dx}px,${dy}px) scale(1.04)`;
+        });
+
+
+
+        // ===== FILTRE CATÉGORIE =====
+        const pills = document.querySelectorAll('.pill');
+        const cards = document.querySelectorAll('[data-cat]'); // voir note ci-dessous
+
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+
+                const id = pill.dataset.id;
+                cards.forEach(card => {
+                    card.style.display = (id === 'all' || card.dataset.cat === id) ? '' : 'none';
+                });
+            });
         });
     </script>
 @endpush

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class CustomerSupport extends Model
 {
     use HasFactory;
-
+    protected $table = 'customers_support';
     protected $fillable = [
         'client_id',
         'nom',

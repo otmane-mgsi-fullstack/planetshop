@@ -201,6 +201,62 @@
         .pchip{background:var(--deep);border:1px solid var(--border);border-radius:5px;padding:.25rem .52rem;font-size:.68rem;color:var(--text-mid)}
 
         @media(max-width:768px){.hero{min-height:auto;padding:3.5rem 0}.hstats{gap:1.1rem}.pc-wrap{margin-top:2.2rem}.nlw{flex-direction:column}}
+
+
+
+        .wa-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 24px rgba(37,211,102,.55), 0 0 0 0 rgba(37,211,102,.4);
+            animation: wa-pulse 2.2s ease-in-out infinite;
+            text-decoration: none;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .wa-fab:hover {
+            transform: scale(1.12) rotate(-5deg);
+            box-shadow: 0 8px 32px rgba(37,211,102,.7), 0 0 0 8px rgba(37,211,102,.12);
+        }
+        .wa-fab svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,.18));
+        }
+        .wa-tooltip {
+            position: absolute;
+            right: 70px;
+            background: #1a1f2e;
+            color: #fff;
+            font-size: .78rem;
+            font-family: 'Orbitron', monospace;
+            padding: .38rem .85rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(8px);
+            transition: opacity .25s ease, transform .25s ease;
+            border: 1px solid rgba(37,211,102,.25);
+            letter-spacing: .04em;
+        }
+        .wa-fab:hover .wa-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes wa-pulse {
+            0%   { box-shadow: 0 4px 24px rgba(37,211,102,.55), 0 0 0 0 rgba(37,211,102,.4); }
+            60%  { box-shadow: 0 4px 24px rgba(37,211,102,.55), 0 0 0 16px rgba(37,211,102,0); }
+            100% { box-shadow: 0 4px 24px rgba(37,211,102,.55), 0 0 0 0 rgba(37,211,102,0); }
+        }
     </style>
     @stack('styles')
 </head>
@@ -271,7 +327,7 @@
 <footer><div class="container">
         <div class="row gy-4">
             <div class="col-lg-4">
-                <div class="ftbr"><span>NEX</span>CORE</div>
+                <div class="ftbr"><span>PLANET</span>SHOP</div>
                 <p class="ftdesc">PCs gaming assemblés en France par des passionnés. Performance, fiabilité, style.</p>
                 <div class="socs mt-3">
                     <a class="sb" href="#"><i class="bi bi-twitter-x"></i></a><a class="sb" href="#"><i class="bi bi-twitch"></i></a><a class="sb" href="#"><i class="bi bi-youtube"></i></a><a class="sb" href="#"><i class="bi bi-discord"></i></a><a class="sb" href="#"><i class="bi bi-instagram"></i></a>
@@ -283,7 +339,9 @@
             <div class="col-6 col-lg-2"><div class="fthdr">Paiement</div><div style="display:flex;flex-wrap:wrap;gap:5px"><span class="pchip">VISA</span><span class="pchip">Mastercard</span><span class="pchip">PayPal</span><span class="pchip">Apple Pay</span><span class="pchip">3× sans frais</span></div></div>
         </div>
         <div class="ftbot"><span class="ftcp">© 2025 NexCore SAS · Tous droits réservés · Mentions légales · CGV</span><span class="ftcp">Fait avec ⚡ en France</span></div>
-    </div></footer>
+    </div>
+</footer>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @stack('scripts')

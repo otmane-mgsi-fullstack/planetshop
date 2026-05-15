@@ -881,7 +881,7 @@
         <a class="s-link" onclick="go('utilisateurs', this)">
             <i class="bi bi-person-badge-fill"></i> Utilisateurs
         </a>
-        <a class="s-link" onclick="go('support', this)">
+        <a class="s-link" href="{{ Route('dash.support') }}">
             <i class="bi bi-headset"></i> Support <span class="s-badge">5</span>
         </a>
     </div>
@@ -934,7 +934,19 @@
                 </div>
             </button>
 
-            <button class="tbb"><i class="bi bi-gear-fill"></i></button>
+           <!-- <button class="tbb"><i class="bi bi-gear-fill"></i></button>  -->
+
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+
+                <button type="submit" class="s-link border-0 bg-transparent text-start w-100">
+                    <i class="bi bi-box-arrow-right"></i>
+
+                </button>
+            </form>
+
+
         </div>
     </header>
 
