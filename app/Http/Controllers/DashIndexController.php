@@ -15,48 +15,42 @@ class DashIndexController extends Controller
         // ==========================================
         // 1. KPIs GLOBAUX
         // ==========================================
-        $totalRevenue = Order::where('statut_commande', 'livré')->sum('montant_total');
-        $pendingOrders = Order::where('statut_commande', 'en attente')->count();
+        $totalRevenue = Order::where('statut_commande', 'livree')->sum('montant_total');
+        $pendingOrders = Order::where('statut_commande', 'en_attente')->count();
         $totalClients = Client::count();
         $totalProducts = Product::count();
 
         // ==========================================
-        // 2. DONNÉES DU GRAPHIQUE (REVENUS 12 MOIS)
+        // 2. DONNÉES DU GRAPHIQUE (TOP 5 PRODUITS)
         // ==========================================
-        $revenueChartLabels = [];
-        $revenueChartData = [];
+        $topProducts = DB::table('order_items')
+            ->join('products', 'order_items.produit_id', '=', 'products.id')
+            ->join('orders', 'order_items.commande_id', '=', 'orders.id')
+            ->where('orders.statut_commande', 'livree')
+            ->select('products.nom', DB::raw('SUM(order_items.quantite) as total_vendus'))
+            ->groupBy('products.id', 'products.nom')
+            ->orderByDesc('total_vendus')
+            ->take(5)
+            ->get();
 
-        // On remonte 11 mois en arrière jusqu'au mois actuel (12 mois au total)
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            // Format du mois (ex: "Jan 2025")
-            $monthName = $date->translatedFormat('M Y');
-
-            // Somme des commandes livrées pour ce mois-là
-            $sum = Order::whereRaw('LOWER(statut_commande) = ?', ['livré'])
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('montant_total');
-
-            $revenueChartLabels[] = ucfirst($monthName);
-            $revenueChartData[] = $sum;
-        }
+        $topProductsLabels = $topProducts->pluck('nom')->toArray();
+        $topProductsData = $topProducts->pluck('total_vendus')->toArray();
 
         // ==========================================
-        // 3. DONNÉES DU GRAPHIQUE (STATUTS COMMANDES)
+        // 3. DONNÉES DU GRAPHIQUE (VENTES PAR CATÉGORIE)
         // ==========================================
-        // On récupère le compte de chaque statut en ignorant la casse
-        $statusCounts = Order::select(DB::raw('LOWER(statut_commande) as statut'), DB::raw('count(*) as total'))
-            ->groupBy('statut')
-            ->pluck('total', 'statut')
-            ->toArray();
+        $categorySales = DB::table('order_items')
+            ->join('products', 'order_items.produit_id', '=', 'products.id')
+            ->join('categories', 'products.categorie_id', '=', 'categories.id')
+            ->join('orders', 'order_items.commande_id', '=', 'orders.id')
+            ->where('orders.statut_commande', 'livree')
+            ->select('categories.nom', DB::raw('SUM(order_items.prix_total) as chiffre_affaires'))
+            ->groupBy('categories.id', 'categories.nom')
+            ->orderByDesc('chiffre_affaires')
+            ->get();
 
-        $statusChartData = [
-            $statusCounts['en attente'] ?? 0,
-            $statusCounts['en transit'] ?? 0,
-            $statusCounts['livré'] ?? 0,
-            $statusCounts['annulé'] ?? 0
-        ];
+        $categorySalesLabels = $categorySales->pluck('nom')->toArray();
+        $categorySalesData = $categorySales->pluck('chiffre_affaires')->toArray();
 
         // ==========================================
         // 4. DERNIÈRES COMMANDES
@@ -71,9 +65,10 @@ class DashIndexController extends Controller
             'pendingOrders',
             'totalClients',
             'totalProducts',
-            'revenueChartLabels',
-            'revenueChartData',
-            'statusChartData',
+            'topProductsLabels',
+            'topProductsData',
+            'categorySalesLabels',
+            'categorySalesData',
             'recentOrders'
         ));
     }

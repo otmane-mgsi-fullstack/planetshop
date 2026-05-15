@@ -825,6 +825,118 @@
             .topbar { padding: 0 16px; }
         }
 
+
+        /* ══ NOTIFICATIONS ══ */
+        .notif-wrap { position: relative; }
+
+        .notif-drop {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 320px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .notif-drop.open { display: block; }
+
+        .notif-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--fh);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        .notif-count {
+            background: var(--orange);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .notif-list { max-height: 320px; overflow-y: auto; }
+
+        .notif-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+            cursor: default;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: var(--row-hover); }
+
+        .notif-ico {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--o-dim);
+            color: var(--orange);
+            display: grid; place-items: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .notif-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+        .notif-amount {
+            font-family: var(--fh);
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--orange);
+            flex-shrink: 0;
+        }
+
+        .notif-empty {
+            padding: 24px 16px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-3);
+        }
+
+        .notif-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--surface2);
+        }
+        .notif-footer a { color: var(--orange); }
+        .notif-footer a:hover { text-decoration: underline; }
+
+        /* badge statut */
+        .ns-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 5px;
+            margin-left: 5px;
+        }
+        .ns-en_attente  { background: rgba(255,107,0,.12); color: var(--orange); }
+        .ns-confirme    { background: rgba(59,130,246,.12); color: var(--blue); }
+        .ns-expedie     { background: rgba(139,92,246,.12); color: var(--purple); }
+        .ns-livre       { background: rgba(16,185,129,.12); color: var(--green); }
+        .ns-annule      { background: rgba(239,68,68,.12); color: var(--red); }
     </style>
 </head>
 
@@ -842,7 +954,7 @@
 
 
 
-<!-- ══ SIDEBAR ══ -->
+    <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar" id="sidebar">
     <div class="s-logo">
         <div class="s-logo-ico"><i class="bi bi-bag-heart-fill"></i></div>
@@ -922,10 +1034,25 @@
         </div>
 
         <div class="tb-acts">
-            <button class="tbb">
-                <i class="bi bi-bell-fill"></i>
-                <span class="ndot"></span>
-            </button>
+            <div class="notif-wrap" id="notifWrap">
+                <button class="tbb" id="notifBtn" onclick="toggleNotif()" title="Notifications">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="ndot" id="notifDot"></span>
+                </button>
+
+                <div class="notif-drop" id="notifDrop">
+                    <div class="notif-header">
+                        <span>Dernières commandes</span>
+                        <span class="notif-count" id="notifCount">0</span>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-empty">Chargement...</div>
+                    </div>
+                    <div class="notif-footer">
+                        <a href="{{ Route('dash.order') }}">Voir toutes les commandes →</a>
+                    </div>
+                </div>
+            </div>
 
             <button class="t-sw" id="themeBtn" title="Changer le thème">
                 <div class="t-knob">
@@ -934,7 +1061,7 @@
                 </div>
             </button>
 
-           <!-- <button class="tbb"><i class="bi bi-gear-fill"></i></button>  -->
+            <!-- <button class="tbb"><i class="bi bi-gear-fill"></i></button>  -->
 
 
             <form method="POST" action="{{ route('logout') }}">
@@ -1148,6 +1275,91 @@
         });
     });
 
+
+
+
+
+    /* ══ NOTIFICATIONS LIVE ══ */
+    let notifOpen = false;
+    let lastOrderId = null;
+
+    function toggleNotif() {
+        notifOpen = !notifOpen;
+        document.getElementById('notifDrop').classList.toggle('open', notifOpen);
+        if (notifOpen) fetchNotifs();
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('notifWrap').contains(e.target)) {
+            notifOpen = false;
+            document.getElementById('notifDrop').classList.remove('open');
+        }
+    });
+
+    const STATUS_LABELS = {
+        en_attente: 'En attente',
+        confirme:   'Confirmé',
+        expedie:    'Expédié',
+        livre:      'Livré',
+        annule:     'Annulé'
+    };
+
+    function timeAgo(dateStr) {
+        const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+        if (diff < 60)  return 'À l\'instant';
+        if (diff < 3600) return Math.floor(diff / 60) + ' min';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+        return Math.floor(diff / 86400) + 'j';
+    }
+
+    function fetchNotifs() {
+        fetch('{{ Route("dash.notifications") }}')
+            .then(r => r.json())
+            .then(orders => {
+                const list = document.getElementById('notifList');
+                const dot  = document.getElementById('notifDot');
+                const cnt  = document.getElementById('notifCount');
+
+                if (!orders.length) {
+                    list.innerHTML = '<div class="notif-empty">Aucune commande</div>';
+                    return;
+                }
+
+                // Nouvelle commande détectée → faire clignoter le dot
+                if (lastOrderId && orders[0].id !== lastOrderId) {
+                    dot.style.animation = 'pulse 1s ease 3';
+                }
+                lastOrderId = orders[0].id;
+
+                cnt.textContent = orders.length;
+
+                list.innerHTML = orders.map(o => {
+                    const statut = o.statut_commande || 'en_attente';
+                    const label  = STATUS_LABELS[statut] || statut;
+                    const cls    = 'ns-' + statut;
+                    return `
+                <div class="notif-item">
+                    <div class="notif-ico"><i class="bi bi-receipt-cutoff"></i></div>
+                    <div class="notif-body">
+                        <div class="notif-name">
+                            ${o.nom_client}
+                            <span class="ns-badge ${cls}">${label}</span>
+                        </div>
+                        <div class="notif-meta">#${o.id} · ${timeAgo(o.created_at)}</div>
+                    </div>
+                    <div class="notif-amount">${parseFloat(o.montant_total).toLocaleString('fr-MA')} MAD</div>
+                </div>`;
+                }).join('');
+            })
+            .catch(() => {
+                document.getElementById('notifList').innerHTML =
+                    '<div class="notif-empty">Erreur de chargement</div>';
+            });
+    }
+
+    /* Polling toutes les 30 secondes */
+    fetchNotifs();
+    setInterval(fetchNotifs, 30000);
 </script>
 </body>
 </html>

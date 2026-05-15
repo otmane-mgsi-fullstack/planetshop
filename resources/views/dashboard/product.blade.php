@@ -12,7 +12,37 @@
 
 
     <style>
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
+        .status-dot.active {
+            background-color: rgba(25, 135, 84, 0.8); /* vert */
+            box-shadow: 0 0 6px rgba(25, 135, 84, 0.4);
+        }
+
+        .status-dot.inactive {
+            background-color: rgba(220, 53, 69, 0.8); /* rouge */
+            box-shadow: 0 0 6px rgba(220, 53, 69, 0.4);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+        }
+
+        .status-dot.active {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(25,135,84,0.5); }
+            70% { box-shadow: 0 0 0 6px rgba(25,135,84,0); }
+            100% { box-shadow: 0 0 0 0 rgba(25,135,84,0); }
+        }
     </style>
 
 </head>
@@ -128,7 +158,23 @@
                 <div class="c-title">Liste des Produits</div>
             </div>
 
+            <div class="d-flex gap-4 align-items-center">
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="status-dot active"></span>
+                    <span>Actif</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="status-dot inactive"></span>
+                    <span>Inactif</span>
+                </div>
+
+            </div>
+
             <div class="d-flex gap-2">
+
+
 
                 <button class="ib">
                     <i class="bi bi-download"></i>
@@ -142,10 +188,9 @@
 
         </div>
 
-        <div class="table-responsive">
 
+        <div class="table-responsive table-striped">
             <table>
-
                 <thead>
                 <tr>
                     <th></th>
@@ -153,137 +198,89 @@
                     <th>Catégorie</th>
                     <th>Prix</th>
                     <th>Stock</th>
-                    <th>Status</th>
-                    <th>Actif</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
 
                 <tbody>
-
-
                 @foreach($products as $product)
-                <tr>
+                    <tr style="{{ $product->actif == 1 ? 'background-color: #19875410;' : 'background-color: rgba(220, 53, 69, 0.12);' }}">
 
-                        <td><img src="{{ asset('storage/' . $product->miniature) }}" alt="noimg" width="60px" height="40px"></td>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
+                        <td>
+                            <img src="{{ asset('storage/' . $product->miniature) }}" alt="noimg" width="60px" height="40px">
+                        </td>
 
-
-
-                            <div>
-                                <div class="prod-n">{{$product->nom}}</div>
-                                <div class="prod-c">{{$product->slug}}</div>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div>
+                                    <div class="prod-n">{{ $product->nom }}</div>
+                                    @if($product->stock == 0)
+                                        <span class="badge bg-danger">Rupture de stock</span>
+                                    @elseif($product->stock < 5)
+                                        <span class="badge bg-warning text-dark">Stock faible</span>
+                                    @else
+                                        <span class="badge bg-success">En stock</span>
+                                    @endif
+                                </div>
                             </div>
+                        </td>
 
-                        </div>
-                    </td>
+                        <td>{{ $product->category->nom }}</td>
 
-                    <td>{{$product->category->nom}}</td>
+                        <td>
+                            <strong>{{ $product->prix }} MAD</strong>
+                        </td>
 
-                    <td>
-                        <strong>{{ $product->prix }} MAD</strong>
-                    </td>
+                        <td>{{ $product->stock }}</td>
 
-                    <td>{{ $product->stock }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="ib editBtn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editProductModal"
+                                        data-id="{{ $product->id }}"
+                                        data-nom="{{ $product->nom }}"
+                                        data-prix="{{ $product->prix }}"
+                                        data-prix_promotion="{{ $product->prix_promotion }}"
+                                        data-stock="{{ $product->stock }}"
+                                        data-courte_description="{{ $product->courte_description }}"
+                                        data-description="{{ $product->description }}"
+                                        data-marque="{{ $product->marque }}"
+                                        data-processeur="{{ $product->processeur }}"
+                                        data-carte_graphique="{{ $product->carte_graphique }}"
+                                        data-memoire_ram="{{ $product->memoire_ram }}"
+                                        data-stockage="{{ $product->stockage }}"
+                                        data-carte_mere="{{ $product->carte_mere }}"
+                                        data-alimentation="{{ $product->alimentation }}"
+                                        data-systeme_refroidissement="{{ $product->systeme_refroidissement }}"
+                                        data-boitier="{{ $product->boitier }}"
+                                        data-meta_titre="{{ $product->meta_titre }}"
+                                        data-meta_description="{{ $product->meta_description }}"
+                                        data-actif="{{ $product->actif }}"
+                                >
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
 
-                    <td>
+                              <!--  <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="ib">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                                -->
 
-                        @if($product->stock == 0)
-                            <span class="badge bg-danger">
-                                Rupture de stock
-                            </span>
+                            </div>
+                        </td>
 
-                        @elseif($product->stock < 5)
-                            <span class="badge bg-warning text-dark">
-                                Stock faible
-                            </span>
-
-                        @else
-                            <span class="badge bg-success">
-                                En stock
-                            </span>
-                        @endif
-
-                    </td>
-
-
-                    <td>
-
-                        @if($product->actif == 0)
-                            <span class="badge bg-danger">
-
-                            </span>
-
-                        @elseif($product->actif ==  1)
-
-                            <span class="badge bg-success">
-                            </span>
-                        @endif
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="d-flex gap-2">
-
-
-
-                            <button class="ib editBtn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editProductModal"
-
-                                    data-id="{{ $product->id }}"
-                                    data-nom="{{ $product->nom }}"
-                                    data-prix="{{ $product->prix }}"
-                                    data-prix_promotion="{{ $product->prix_promotion }}"
-                                    data-stock="{{ $product->stock }}"
-                                    data-courte_description="{{ $product->courte_description }}"
-                                    data-description="{{ $product->description }}"
-                                    data-marque="{{ $product->marque }}"
-                                    data-processeur="{{ $product->processeur }}"
-                                    data-carte_graphique="{{ $product->carte_graphique }}"
-                                    data-memoire_ram="{{ $product->memoire_ram }}"
-                                    data-stockage="{{ $product->stockage }}"
-                                    data-carte_mere="{{ $product->carte_mere }}"
-                                    data-alimentation="{{ $product->alimentation }}"
-                                    data-systeme_refroidissement="{{ $product->systeme_refroidissement }}"
-                                    data-boitier="{{ $product->boitier }}"
-                                    data-meta_titre="{{ $product->meta_titre }}"
-                                    data-meta_description="{{ $product->meta_description }}"
-                                    data-actif="{{ $product->actif }}"
-                            >
-                                <i class="bi bi-pencil-fill"></i>
-                            </button>
-
-
-
-
-
-                            <form action="{{ route('products.destroy', $product->id) }}"
-                                  method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                            <button class="ib">
-
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                            </form>
-
-
-                        </div>
-
-                    </td>
-
-                </tr>
+                    </tr>
                 @endforeach
-
                 </tbody>
-
             </table>
-
         </div>
+
+
+
 
     </div>
 
@@ -321,7 +318,7 @@
 
                             <div class="col-lg-6">
                                 <label>Nom Produit</label>
-                                <input type="text" name="nom" class="form-control product-input" style="height:48px;">
+                                <input type="text" name="nom" class="form-control product-input" style="height:48px;" required>
                             </div>
 
                             <div class="col-lg-6">
@@ -331,9 +328,9 @@
 
                             <div class="col-lg-6">
                                 <label>Catégorie</label>
-                                <select name="categorie_id" class="form-select filter-select" style="height:48px;">
+                                <select name="categorie_id" class="form-select filter-select" style="height:48px;" required>
                                     @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->nom }}</option>
+                                        <option value="{{ $category->id }}" >{{ $category->nom }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -353,22 +350,22 @@
 
                             <div class="col-lg-4">
                                 <label>Prix Promotion</label>
-                                <input type="number" name="prix_promotion" class="form-control product-input" style="height:48px;">
+                                <input type="number" name="prix_promotion" class="form-control product-input" style="height:48px;" required>
                             </div>
 
                             <div class="col-lg-4">
                                 <label>Stock</label>
-                                <input type="number" name="stock" class="form-control product-input" style="height:48px;">
+                                <input type="number" name="stock" class="form-control product-input" style="height:48px;" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Marque</label>
-                                <input type="text" name="marque" class="form-control product-input" style="height:48px;">
+                                <input type="text" name="marque" class="form-control product-input" style="height:48px;" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Miniature</label>
-                                <input type="file" name="miniature" class="form-control" accept="image/*">
+                                <input type="file" name="miniature" class="form-control" accept="image/*" required>
                             </div>
 
                             <div class="col-lg-6">
@@ -493,42 +490,42 @@
 
                             <div class="col-lg-6">
                                 <label>Nom</label>
-                                <input type="text" name="nom" id="edit_nom" class="form-control">
+                                <input type="text" name="nom" id="edit_nom" class="form-control" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Prix</label>
-                                <input type="number" name="prix" id="edit_prix" class="form-control">
+                                <input type="number" name="prix" id="edit_prix" class="form-control" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Prix Promotion</label>
-                                <input type="number" name="prix_promotion" id="edit_prix_promotion" class="form-control">
+                                <input type="number" name="prix_promotion" id="edit_prix_promotion" class="form-control" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Stock</label>
-                                <input type="number" name="stock" id="edit_stock" class="form-control">
+                                <input type="number" name="stock" id="edit_stock" class="form-control" required>
                             </div>
 
                             <div class="col-12">
                                 <label>Courte Description</label>
-                                <textarea name="courte_description" id="edit_courte_description" class="form-control"></textarea>
+                                <textarea name="courte_description" id="edit_courte_description" class="form-control" required></textarea>
                             </div>
 
                             <div class="col-12">
                                 <label>Description</label>
-                                <textarea name="description" id="edit_description" class="form-control"></textarea>
+                                <textarea name="description" id="edit_description" class="form-control" required></textarea>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Marque</label>
-                                <input type="text" name="marque" id="edit_marque" class="form-control">
+                                <input type="text" name="marque" id="edit_marque" class="form-control" required>
                             </div>
 
                             <div class="col-lg-6">
                                 <label>Miniature</label>
-                                <input type="file" name="miniature" class="form-control">
+                                <input type="file" name="miniature" class="form-control" required>
                             </div>
 
                             <div class="col-lg-6">

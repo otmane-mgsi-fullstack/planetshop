@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -111,14 +112,25 @@
             overflow: hidden;
         }
 
-        .t-head {
+       /* .t-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 1.1rem 1.5rem;
             border-bottom: 1px solid var(--border);
             background: var(--bg-card-2);
+        } */
+
+
+        .t-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface2);
         }
+
 
         .c-title {
             font-family: var(--fh);
@@ -490,18 +502,18 @@
                                 </button>
 
 
-                              <!--  <form
+                                <!--  <form
                                     action="{{ route('categories.destroy', $category->id) }}"
                                     method="POST"
                                 >
                                     @csrf
-                                    @method('DELETE')
+                                @method('DELETE')
 
-                                    <button class="ib">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
-                               -->
+                                <button class="ib">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+-->
 
                             </div>
 

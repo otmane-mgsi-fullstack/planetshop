@@ -110,4 +110,10 @@ Route::middleware(['auth', 'role:admin'])
             Route::post('/{id}/update-status', [DashSupportController::class, 'updateStatus'])->name('updateStatus');
             Route::delete('/{id}', [DashSupportController::class, 'destroy'])->name('destroy');
        // });
+
+
+
+        Route::get('notifications/orders', [DashOrderController::class, 'latestNotifications'])->
+        name('dash.notifications');
     });
+

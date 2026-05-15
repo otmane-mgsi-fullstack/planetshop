@@ -18,16 +18,40 @@
             --orange:    #ff6b00;
             --orange-lt: #ff8c33;
             --orange-xs: rgba(255,107,0,.10);
-            --bg:        #eef1f8;
-            --slate:     #5a6880;
-            --slate-dk:  #3d4a5f;
             --sidebar-w: 260px;
-            --white:     #ffffff;
             --card-r:    16px;
-            --shadow:    0 4px 24px rgba(90,104,128,.10);
-            --shadow-sm: 0 2px 10px rgba(90,104,128,.08);
             --font-h:    'Syne', sans-serif;
             --font-b:    'DM Sans', sans-serif;
+
+            /* Light mode */
+            --bg:        #eef1f8;
+            --surface:   #ffffff;
+            --surface-hover: #fafbff;
+            --border:    #e2e6f0;
+            --border-row: #f5f6fa;
+            --text-main: #3d4a5f;
+            --text-muted: #5a6880;
+            --text-label: #b0b9cc;
+            --shadow:    0 4px 24px rgba(90,104,128,.10);
+            --shadow-sm: 0 2px 10px rgba(90,104,128,.08);
+            --thead-bg:  #eef1f8;
+        }
+
+        /* Dark mode overrides */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg:          #111827;
+                --surface:     #1f2937;
+                --surface-hover: #263044;
+                --border:      #374151;
+                --border-row:  #2d3748;
+                --text-main:   #e2e8f0;
+                --text-muted:  #94a3b8;
+                --text-label:  #64748b;
+                --shadow:      0 4px 24px rgba(0,0,0,.40);
+                --shadow-sm:   0 2px 10px rgba(0,0,0,.30);
+                --thead-bg:    #161f2e;
+            }
         }
 
         /* ─── RESET ──────────────────────────────────────────────── */
@@ -35,7 +59,7 @@
         body {
             font-family: var(--font-b);
             background: var(--bg);
-            color: var(--slate-dk);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             overflow-x: hidden;
@@ -56,7 +80,7 @@
             margin-bottom: 24px;
         }
         .kpi-card {
-            background: var(--white);
+            background: var(--surface);
             border-radius: var(--card-r);
             padding: 22px 22px 18px;
             box-shadow: var(--shadow-sm);
@@ -75,8 +99,16 @@
         .kpi-card.blue::before  { background: #4a90e2; }
         .kpi-card.green::before { background: #27ae60; }
         .kpi-card.danger::before{ background: #e74c3c; }
-        .kpi-label { font-size: 11.5px; font-weight: 600; color: #b0b9cc; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
-        .kpi-value { font-family: var(--font-h); font-size: 28px; font-weight: 800; color: var(--slate-dk); line-height: 1; margin-bottom: 10px; }
+
+        .kpi-label {
+            font-size: 11.5px; font-weight: 600;
+            color: var(--text-label);
+            text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-family: var(--font-h); font-size: 28px; font-weight: 800;
+            color: var(--text-main); line-height: 1; margin-bottom: 10px;
+        }
         .kpi-icon {
             position: absolute; top: 18px; right: 18px;
             width: 42px; height: 42px;
@@ -94,7 +126,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--white);
+            background: var(--surface);
             padding: 16px 22px;
             border-radius: var(--card-r);
             box-shadow: var(--shadow-sm);
@@ -110,16 +142,25 @@
         .form-select, .form-control {
             font-size: 13px;
             font-family: var(--font-b);
-            color: var(--slate-dk);
-            border: 1px solid #e2e6f0;
+            color: var(--text-main);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 8px 12px;
             background-color: var(--bg);
             box-shadow: none;
         }
+        .form-select option {
+            background-color: var(--surface);
+            color: var(--text-main);
+        }
         .form-select:focus, .form-control:focus {
             border-color: var(--orange);
             box-shadow: 0 0 0 2px var(--orange-xs);
+            background-color: var(--bg);
+            color: var(--text-main);
+        }
+        .form-control::placeholder {
+            color: var(--text-label);
         }
         .btn-orange {
             background: var(--orange);
@@ -137,8 +178,8 @@
         .btn-orange:hover { background: var(--orange-lt); box-shadow: 0 4px 14px rgba(255,107,0,.3); color: #fff; }
         .btn-outline {
             background: transparent;
-            color: var(--slate);
-            border: 1px solid #e2e6f0;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 8px 16px;
             font-size: 12.5px;
@@ -147,11 +188,11 @@
             display: flex; align-items: center; gap: 6px;
             transition: all .2s;
         }
-        .btn-outline:hover { background: var(--bg); color: var(--slate-dk); }
+        .btn-outline:hover { background: var(--bg); color: var(--text-main); }
 
         /* ─── TABLE ──────────────────────────────────────────────── */
         .table-card {
-            background: var(--white);
+            background: var(--surface);
             border-radius: var(--card-r);
             box-shadow: var(--shadow-sm);
             overflow: hidden;
@@ -159,19 +200,25 @@
         }
         table { width: 100%; border-collapse: collapse; }
         thead th {
-            background: var(--bg);
+            background: var(--thead-bg);
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .8px;
-            color: #b0b9cc;
+            color: var(--text-label);
             padding: 14px 22px;
             text-align: left;
         }
-        tbody tr { border-bottom: 1px solid #f5f6fa; transition: background .15s; }
+        tbody tr { border-bottom: 1px solid var(--border-row); transition: background .15s; }
         tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: #fafbff; }
-        tbody td { padding: 14px 22px; font-size: 13.5px; color: var(--slate-dk); vertical-align: middle; }
+        tbody tr:hover { background: var(--surface-hover); }
+        tbody td { padding: 14px 22px; font-size: 13.5px; color: var(--text-main); vertical-align: middle; }
+
+        /* Checkbox color in dark mode */
+        .form-check-input {
+            background-color: var(--surface);
+            border-color: var(--border);
+        }
 
         .avatar-sm {
             width: 32px; height: 32px; border-radius: 50%;
@@ -191,10 +238,10 @@
             padding: 4px 12px; border-radius: 20px;
             display: inline-block;
         }
-        .s-success { background: rgba(39,174,96,.12); color: #27ae60; }
-        .s-warn    { background: rgba(255,107,0,.12);  color: var(--orange); }
-        .s-info    { background: rgba(74,144,226,.12); color: #4a90e2; }
-        .s-danger  { background: rgba(231,76,60,.12);  color: #e74c3c; }
+        .s-success { background: rgba(39,174,96,.15);  color: #27ae60; }
+        .s-warn    { background: rgba(255,107,0,.15);  color: var(--orange); }
+        .s-info    { background: rgba(74,144,226,.15); color: #4a90e2; }
+        .s-danger  { background: rgba(231,76,60,.15);  color: #e74c3c; }
 
         .action-btns {
             display: flex; gap: 8px;
@@ -205,7 +252,7 @@
             background: var(--bg);
             border: none;
             display: inline-grid; place-items: center;
-            color: var(--slate);
+            color: var(--text-muted);
             font-size: 14px;
             cursor: pointer;
             transition: all .2s;
@@ -213,38 +260,73 @@
         .btn-action:hover { background: var(--orange-xs); color: var(--orange); }
         .btn-action.delete:hover { background: rgba(231,76,60,.10); color: #e74c3c; }
 
+        /* text-muted in dark mode */
+        .text-muted { color: var(--text-muted) !important; }
+
         /* ─── PAGINATION ─────────────────────────────────────────── */
         .pagination-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px 22px;
-            background: #fff;
-            border-top: 1px solid #f5f6fa;
+            background: var(--surface);
+            border-top: 1px solid var(--border-row);
+        }
+
+        /* Bootstrap pagination dark mode fix */
+        .pagination .page-link {
+            background-color: var(--surface);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+        .pagination .page-link:hover {
+            background-color: var(--bg);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--orange);
+            border-color: var(--orange);
+            color: #fff;
+        }
+        .pagination .page-item.disabled .page-link {
+            background-color: var(--surface);
+            border-color: var(--border);
+            color: var(--text-label);
         }
 
         /* ─── MODAL CUSTOMIZATION ────────────────────────────────── */
         .modal-content {
             border: none;
             border-radius: var(--card-r);
-            box-shadow: 0 10px 40px rgba(90,104,128,.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,.25);
+            background: var(--surface);
+            color: var(--text-main);
         }
         .modal-header {
-            border-bottom: 1px solid #f0f2f7;
+            border-bottom: 1px solid var(--border);
             padding: 20px 24px;
+            background: var(--surface);
         }
         .modal-title {
             font-family: var(--font-h);
             font-size: 18px;
             font-weight: 700;
+            color: var(--text-main);
         }
         .modal-body {
             padding: 24px;
+            background: var(--surface);
+            color: var(--text-main);
         }
         .modal-footer {
-            border-top: 1px solid #f0f2f7;
+            border-top: 1px solid var(--border);
             padding: 16px 24px;
+            background: var(--surface);
         }
+        /* Bootstrap modal backdrop */
+        .modal-backdrop { --bs-backdrop-opacity: 0.6; }
+
         .order-detail-card {
             background: var(--bg);
             border-radius: 12px;
@@ -253,7 +335,7 @@
         }
         .order-detail-label {
             font-size: 11px;
-            color: #b0b9cc;
+            color: var(--text-label);
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -262,8 +344,53 @@
         .order-detail-value {
             font-size: 14px;
             font-weight: 600;
-            color: var(--slate-dk);
+            color: var(--text-main);
         }
+
+        /* Bootstrap table inside modal */
+        .table {
+            color: var(--text-main);
+        }
+        .table-light {
+            background-color: var(--thead-bg) !important;
+            color: var(--text-main);
+        }
+        .table-light th {
+            background-color: var(--thead-bg) !important;
+            color: var(--text-label);
+        }
+        .table > :not(caption) > * > * {
+            background-color: transparent;
+            border-bottom-color: var(--border-row);
+            color: var(--text-main);
+        }
+
+        /* Alert dark mode */
+        .alert-secondary {
+            background-color: var(--bg);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+        .alert-success {
+            background-color: rgba(39,174,96,.12);
+            border-color: rgba(39,174,96,.25);
+            color: #27ae60;
+        }
+        .alert-danger {
+            background-color: rgba(231,76,60,.12);
+            border-color: rgba(231,76,60,.25);
+            color: #e74c3c;
+        }
+
+        /* Form labels and selects in modal */
+        .form-label {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* hr in dark mode */
+        hr { border-color: var(--border); opacity: 1; }
 
         /* ─── RESPONSIVE ─────────────────────────────────────────── */
         @media (max-width: 1200px) {
@@ -341,13 +468,13 @@
                 </div>
                 <select name="status" class="form-select" style="width: 150px;">
                     <option value="">Tous les statuts</option>
-                    <option value="en_attente" {{ request('status') == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                    <option value="confirmee" {{ request('status') == 'confirmee' ? 'selected' : '' }}>Confirmée</option>
+                    <option value="en_attente"     {{ request('status') == 'en_attente'     ? 'selected' : '' }}>En attente</option>
+                    <option value="confirmee"      {{ request('status') == 'confirmee'      ? 'selected' : '' }}>Confirmée</option>
                     <option value="en_preparation" {{ request('status') == 'en_preparation' ? 'selected' : '' }}>En préparation</option>
-                    <option value="en_livraison" {{ request('status') == 'en_livraison' ? 'selected' : '' }}>En livraison</option>
-                    <option value="livree" {{ request('status') == 'livree' ? 'selected' : '' }}>Livrée</option>
-                    <option value="annulee" {{ request('status') == 'annulee' ? 'selected' : '' }}>Annulée</option>
-                    <option value="retournee" {{ request('status') == 'retournee' ? 'selected' : '' }}>Retournée</option>
+                    <option value="en_livraison"   {{ request('status') == 'en_livraison'   ? 'selected' : '' }}>En livraison</option>
+                    <option value="livree"         {{ request('status') == 'livree'         ? 'selected' : '' }}>Livrée</option>
+                    <option value="annulee"        {{ request('status') == 'annulee'        ? 'selected' : '' }}>Annulée</option>
+                    <option value="retournee"      {{ request('status') == 'retournee'      ? 'selected' : '' }}>Retournée</option>
                 </select>
                 <input type="date" name="date" class="form-control" style="width: 160px;" value="{{ request('date') }}" />
                 <button type="submit" class="btn-outline"><i class="bi bi-funnel"></i> Filtrer</button>
@@ -391,8 +518,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    {{ $order->created_at}}<br>
-                                    <small class="text-muted">{{ $order->created_at}}</small>
+                                    {{ $order->created_at }}<br>
                                 </td>
                                 <td><strong>{{ number_format($order->montant_total ?? 0, 2, ',', ' ') }} €</strong></td>
                                 <td>
@@ -407,8 +533,8 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <!-- Ajustez l'icône selon la méthode de paiement, ici un exemple basique -->
-                                    <i class="bi bi-credit-card text-muted me-1"></i> {{ $order->methode_paiement == 'virement_bancaire' ? 'Virement bancaire' : 'Paiement à la livraison' }}
+                                    <i class="bi bi-credit-card me-1" style="color: var(--text-label);"></i>
+                                    {{ $order->methode_paiement == 'virement_bancaire' ? 'Virement bancaire' : 'Paiement à la livraison' }}
                                 </td>
                                 <td>
                                     <div class="action-btns">
@@ -433,8 +559,7 @@
             </div>
 
             <!-- PAGINATION -->
-
-            {{ $tickets->links('pagination::bootstrap-5') }}
+            {{ $orders->links('pagination::bootstrap-5') }}
 
         </div>
 
@@ -469,10 +594,10 @@
                                         <div class="text-muted" style="font-size: 13px; line-height: 1.5;">
                                             {{ $order->adresse_livraison ?? 'Non renseignée' }}
                                         </div>
-                                        <hr class="my-2 border-secondary opacity-25">
+                                        <hr class="my-2">
                                         <div class="d-flex justify-content-between text-muted" style="font-size: 12px;">
-                                            <span>Statut : <strong class="text-dark">{{ ucfirst(str_replace('_', ' ', $order->statut_commande)) }}</strong></span>
-                                            <span>Paiement : <strong class="text-dark">{{ ucfirst(str_replace('_', ' ', $order->statut_paiement)) }}</strong></span>
+                                            <span>Statut : <strong style="color: var(--text-main);">{{ ucfirst(str_replace('_', ' ', $order->statut_commande)) }}</strong></span>
+                                            <span>Paiement : <strong style="color: var(--text-main);">{{ ucfirst(str_replace('_', ' ', $order->statut_paiement)) }}</strong></span>
                                         </div>
                                     </div>
                                 </div>
@@ -484,7 +609,7 @@
                                 </div>
                             @endif
 
-                            <h6 class="mt-4 mb-3 fw-bold" style="font-family: var(--font-h);">Articles commandés</h6>
+                            <h6 class="mt-4 mb-3 fw-bold" style="font-family: var(--font-h); color: var(--text-main);">Articles commandés</h6>
                             <div class="table-responsive">
                                 <table class="table" style="font-size: 13px;">
                                     <thead class="table-light">
@@ -500,9 +625,7 @@
                                         @foreach($order->items as $item)
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <span class="fw-semibold">{{ $item->produit->nom ?? 'Produit #'.$item->produit_id }}</span>
-                                                    </div>
+                                                    <span class="fw-semibold">{{ $item->produit->nom ?? 'Produit #'.$item->produit_id }}</span>
                                                 </td>
                                                 <td>{{ number_format($item->prix_unitaire, 2, ',', ' ') }} €</td>
                                                 <td>{{ $item->quantite }}</td>
@@ -524,15 +647,15 @@
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="text-end fw-bold">Total :</td>
-                                        <td class="text-end fw-bold text-primary" style="font-size: 16px;">{{ number_format($order->montant_total ?? 0, 2, ',', ' ') }} €</td>
+                                        <td class="text-end fw-bold" style="font-size: 16px; color: var(--orange);">{{ number_format($order->montant_total ?? 0, 2, ',', ' ') }} €</td>
                                     </tr>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Fermer</button>
-                            <button type="button" class="btn btn-orange" onclick="window.print()"><i class="bi bi-printer me-2"></i>Imprimer Facture</button>
+                            <button type="button" class="btn-outline" data-bs-dismiss="modal">Fermer</button>
+                            <button type="button" class="btn-orange" onclick="window.print()"><i class="bi bi-printer me-2"></i>Imprimer Facture</button>
                         </div>
                     </div>
                 </div>
@@ -553,27 +676,27 @@
                                 <div class="mb-3">
                                     <label class="form-label">Statut de la commande</label>
                                     <select name="statut_commande" class="form-select">
-                                        <option value="en_attente" {{ strtolower($order->statut_commande) == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                                        <option value="confirmee" {{ strtolower($order->statut_commande) == 'confirmee' ? 'selected' : '' }}>Confirmée</option>
+                                        <option value="en_attente"     {{ strtolower($order->statut_commande) == 'en_attente'     ? 'selected' : '' }}>En attente</option>
+                                        <option value="confirmee"      {{ strtolower($order->statut_commande) == 'confirmee'      ? 'selected' : '' }}>Confirmée</option>
                                         <option value="en_preparation" {{ strtolower($order->statut_commande) == 'en_preparation' ? 'selected' : '' }}>En préparation</option>
-                                        <option value="en_livraison" {{ strtolower($order->statut_commande) == 'en_livraison' ? 'selected' : '' }}>En livraison</option>
-                                        <option value="livree" {{ strtolower($order->statut_commande) == 'livree' ? 'selected' : '' }}>Livrée</option>
-                                        <option value="annulee" {{ strtolower($order->statut_commande) == 'annulee' ? 'selected' : '' }}>Annulée</option>
-                                        <option value="retournee" {{ strtolower($order->statut_commande) == 'retournee' ? 'selected' : '' }}>Retournée</option>
+                                        <option value="en_livraison"   {{ strtolower($order->statut_commande) == 'en_livraison'   ? 'selected' : '' }}>En livraison</option>
+                                        <option value="livree"         {{ strtolower($order->statut_commande) == 'livree'         ? 'selected' : '' }}>Livrée</option>
+                                        <option value="annulee"        {{ strtolower($order->statut_commande) == 'annulee'        ? 'selected' : '' }}>Annulée</option>
+                                        <option value="retournee"      {{ strtolower($order->statut_commande) == 'retournee'      ? 'selected' : '' }}>Retournée</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Statut du paiement</label>
                                     <select name="statut_paiement" class="form-select">
-                                        <option value="non_paye" {{ strtolower($order->statut_paiement) == 'non_paye' ? 'selected' : '' }}>Non payé</option>
-                                        <option value="paye" {{ strtolower($order->statut_paiement) == 'paye' ? 'selected' : '' }}>Payé</option>
+                                        <option value="non_paye"  {{ strtolower($order->statut_paiement) == 'non_paye'  ? 'selected' : '' }}>Non payé</option>
+                                        <option value="paye"      {{ strtolower($order->statut_paiement) == 'paye'      ? 'selected' : '' }}>Payé</option>
                                         <option value="rembourse" {{ strtolower($order->statut_paiement) == 'rembourse' ? 'selected' : '' }}>Remboursé</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Annuler</button>
-                                <button type="submit" class="btn btn-orange">Enregistrer</button>
+                                <button type="button" class="btn-outline" data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn-orange">Enregistrer</button>
                             </div>
                         </form>
                     </div>

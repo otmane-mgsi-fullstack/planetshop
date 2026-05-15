@@ -219,19 +219,19 @@
     <div class="chart-grid">
         <div class="chart-card">
             <div class="chart-card-header">
-                <div class="chart-card-title">Évolution des Revenus (12 derniers mois)</div>
+                <div class="chart-card-title">Top 5 des Produits les plus vendus</div>
             </div>
             <div class="chart-container">
-                <canvas id="revenueChart"></canvas>
+                <canvas id="topProductsChart"></canvas>
             </div>
         </div>
 
         <div class="chart-card">
             <div class="chart-card-header">
-                <div class="chart-card-title">Répartition par Statut</div>
+                <div class="chart-card-title">Chiffre d'Affaires par Catégorie</div>
             </div>
             <div class="chart-container">
-                <canvas id="statusChart"></canvas>
+                <canvas id="categorySalesChart"></canvas>
             </div>
         </div>
     </div>
@@ -306,40 +306,34 @@
                 return html.getAttribute('data-theme') === 'dark';
             }
 
-            /* ── REVENUE CHART (ligne) ─────────────────────── */
-            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            /* ── TOP PRODUCTS CHART (bar) ─────────────────────── */
+            const ctxTopProducts = document.getElementById('topProductsChart').getContext('2d');
 
-            const revenueLabels = {!! json_encode($revenueChartLabels ?? []) !!};
-            const revenueData   = {!! json_encode($revenueChartData   ?? []) !!};
+            const topProductsLabels = {!! json_encode($topProductsLabels ?? []) !!};
+            const topProductsData   = {!! json_encode($topProductsData   ?? []) !!};
 
-            let revenueChart, statusChart;
+            let topProductsChart, categorySalesChart;
 
-            function buildRevenueChart() {
-                if (revenueChart) revenueChart.destroy();
+            function buildTopProductsChart() {
+                if (topProductsChart) topProductsChart.destroy();
 
                 const dark = isDark();
 
-                const grad = ctxRevenue.createLinearGradient(0, 0, 0, 300);
-                grad.addColorStop(0, dark ? 'rgba(255,107,0,.30)' : 'rgba(255,107,0,.22)');
-                grad.addColorStop(1, 'rgba(255,107,0,0)');
+                const grad = ctxTopProducts.createLinearGradient(0, 0, 0, 300);
+                grad.addColorStop(0, dark ? '#ff8c33' : '#ff6b00');
+                grad.addColorStop(1, dark ? 'rgba(255,107,0,.30)' : 'rgba(255,107,0,.8)');
 
-                revenueChart = new Chart(ctxRevenue, {
-                    type: 'line',
+                topProductsChart = new Chart(ctxTopProducts, {
+                    type: 'bar',
                     data: {
-                        labels: revenueLabels,
+                        labels: topProductsLabels,
                         datasets: [{
-                            label: "Chiffre d'Affaires",
-                            data: revenueData,
-                            borderColor: '#ff6b00',
+                            label: "Quantité vendue",
+                            data: topProductsData,
                             backgroundColor: grad,
-                            borderWidth: 3,
-                            pointBackgroundColor: dark ? '#1a2335' : '#ffffff',
-                            pointBorderColor: '#ff6b00',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            fill: true,
-                            tension: 0.4
+                            borderRadius: 6,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
                         }]
                     },
                     options: {
@@ -356,9 +350,6 @@
                                 padding: 12,
                                 titleFont: { family: 'Syne', size: 13, weight: '700' },
                                 bodyFont:  { family: 'DM Sans', size: 13 },
-                                callbacks: {
-                                    label: ctx => '  ' + ctx.parsed.y.toLocaleString('fr-FR') + ' MAD'
-                                }
                             }
                         },
                         scales: {
@@ -368,12 +359,12 @@
                                 ticks: { font: { family: 'DM Sans' }, color: cv('--text-3') }
                             },
                             y: {
-                                grid: { color: cv('--border') },
+                                grid: { color: cv('--border'), drawBorder: false },
                                 border: { display: false },
                                 ticks: {
                                     font: { family: 'DM Sans' },
                                     color: cv('--text-3'),
-                                    callback: v => v >= 1000 ? (v/1000) + 'k' : v
+                                    stepSize: 1
                                 },
                                 beginAtZero: true
                             }
@@ -382,24 +373,27 @@
                 });
             }
 
-            /* ── STATUS CHART (doughnut) ───────────────────── */
-            const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            const statusData = {!! json_encode($statusChartData ?? [0,0,0,0]) !!};
+            /* ── CATEGORY SALES CHART (doughnut) ───────────────────── */
+            const ctxCategorySales = document.getElementById('categorySalesChart').getContext('2d');
+            const categorySalesLabels = {!! json_encode($categorySalesLabels ?? []) !!};
+            const categorySalesData = {!! json_encode($categorySalesData ?? []) !!};
 
-            function buildStatusChart() {
-                if (statusChart) statusChart.destroy();
+            function buildCategorySalesChart() {
+                if (categorySalesChart) categorySalesChart.destroy();
 
                 const dark = isDark();
 
-                statusChart = new Chart(ctxStatus, {
+                const colors = ['#ff6b00', '#4a90e2', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+
+                categorySalesChart = new Chart(ctxCategorySales, {
                     type: 'doughnut',
                     data: {
-                        labels: ['En attente', 'En transit', 'Livré', 'Annulé'],
+                        labels: categorySalesLabels.length > 0 ? categorySalesLabels : ['Aucune donnée'],
                         datasets: [{
-                            data: statusData,
-                            backgroundColor: ['#ff6b00', '#4a90e2', '#27ae60', '#e74c3c'],
+                            data: categorySalesData.length > 0 ? categorySalesData : [1],
+                            backgroundColor: categorySalesData.length > 0 ? colors : [dark ? '#1a2335' : '#e5e9f2'],
                             borderWidth: dark ? 2 : 3,
-                            borderColor: dark ? '#1a2335' : '#ffffff',
+                            borderColor: cv('--surface'),
                             hoverOffset: 6
                         }]
                     },
@@ -418,13 +412,17 @@
                                 }
                             },
                             tooltip: {
+                                enabled: categorySalesData.length > 0,
                                 backgroundColor: dark ? '#1a2335' : '#fff',
                                 borderColor:     dark ? '#283044' : '#e5e9f2',
                                 borderWidth: 1,
                                 titleColor: dark ? '#e8edf7' : '#1a2540',
                                 bodyColor:  dark ? '#8a97b0' : '#5a6880',
                                 padding: 12,
-                                bodyFont: { family: 'DM Sans', size: 13 }
+                                bodyFont: { family: 'DM Sans', size: 13 },
+                                callbacks: {
+                                    label: ctx => '  ' + ctx.parsed.toLocaleString('fr-FR') + ' MAD'
+                                }
                             }
                         }
                     }
@@ -432,15 +430,15 @@
             }
 
             /* Build initial */
-            buildRevenueChart();
-            buildStatusChart();
+            buildTopProductsChart();
+            buildCategorySalesChart();
 
             /* Rebuild quand le thème change (le bouton dispatch un event) */
             document.getElementById('themeBtn')?.addEventListener('click', () => {
                 /* Léger délai pour laisser data-theme se mettre à jour */
                 setTimeout(() => {
-                    buildRevenueChart();
-                    buildStatusChart();
+                    buildTopProductsChart();
+                    buildCategorySalesChart();
                 }, 50);
             });
 

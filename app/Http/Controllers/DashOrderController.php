@@ -29,7 +29,7 @@ class DashOrderController extends Controller
             });
         }
 
-        
+
 
 
 
@@ -81,4 +81,16 @@ class DashOrderController extends Controller
 
         return redirect()->back()->with('success', 'La commande a été supprimée avec succès.');
     }
+
+
+    public function latestNotifications()
+    {
+        $orders = \App\Models\Order::latest()
+            ->take(5)
+            ->get(['id', 'nom_client', 'montant_total', 'statut_commande', 'created_at']);
+
+        return response()->json($orders);
+    }
+
+
 }

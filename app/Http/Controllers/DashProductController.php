@@ -60,9 +60,9 @@ class DashProductController extends Controller
             'categorie_id' => 'required|exists:categories,id',
             'reference' => 'nullable|string|max:255',
             'prix' => 'required|numeric',
-            'prix_promotion' => 'nullable|numeric',
+            'prix_promotion' => 'required|numeric',
             'stock' => 'required|integer',
-            'marque' => 'nullable|string|max:255',
+            'marque' => 'required|string|max:255',
 
             'processeur' => 'nullable|string',
             'carte_graphique' => 'nullable|string',
@@ -79,7 +79,7 @@ class DashProductController extends Controller
             'meta_titre' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
 
-            'miniature' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'miniature' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // SLUG UNIQUE
@@ -120,11 +120,11 @@ class DashProductController extends Controller
         $data = $request->validate([
             'nom' => 'required|string',
             'prix' => 'required|numeric',
-            'prix_promotion' => 'nullable|numeric',
+            'prix_promotion' => 'required|numeric',
             'stock' => 'required|integer',
-            'courte_description' => 'nullable|string',
-            'description' => 'nullable|string',
-            'marque' => 'nullable|string',
+            'courte_description' => 'required|string',
+            'description' => 'required|string',
+            'marque' => 'required|string',
             'processeur' => 'nullable|string',
             'carte_graphique' => 'nullable|string',
             'memoire_ram' => 'nullable|string',
@@ -135,7 +135,7 @@ class DashProductController extends Controller
             'boitier' => 'nullable|string',
             'meta_titre' => 'nullable|string',
             'meta_description' => 'nullable|string',
-            'miniature' => 'nullable|image|max:2048',
+            'miniature' => 'required|image|max:2048',
         ]);
 
         $data['actif'] = $request->has('actif') ? 1 : 0;
