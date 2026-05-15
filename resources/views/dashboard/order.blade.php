@@ -433,11 +433,9 @@
             </div>
 
             <!-- PAGINATION -->
-            <div class="pagination-container">
-                @if(isset($orders))
-                    {{ $orders->links('pagination::bootstrap-5') }}
-                @endif
-            </div>
+
+            {{ $tickets->links('pagination::bootstrap-5') }}
+
         </div>
 
     </div><!-- /content -->

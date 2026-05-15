@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CustomerSupportController;
+
 use App\Http\Controllers\DashIndexController;
 use App\Http\Controllers\DashProductController;
 use App\Http\Controllers\DashCategoryController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\DashClientController;
 use App\Http\Controllers\DashOrderController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\DashSupportController;
+
 // Page d'un produit (accessible à tous)
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +35,7 @@ Route::post('/commander/{id}', [\App\Http\Controllers\ProductPageController::cla
     ->name('commander.directement')
     ->middleware('auth');
 
-
+Route::post('/support/send', [CustomerSupportController::class, 'store'])->name('support.store');
 // web.php
 //Route::get('/product/{slug}', [ProductPageController::class, 'show'])->name('product.show');
 /*

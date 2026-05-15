@@ -291,7 +291,7 @@
                 <li><a class="nav-link" href="#shop">PCs Gaming</a></li>
                 <li><a class="nav-link" href="#">Composants</a></li>
                 <li><a class="nav-link" href="#">Périphériques</a></li>
-                <li><a class="nav-link" href="#">Configurateur</a></li>
+                <li><a class="nav-link" href="#">Configuration</a></li>
                 <li><a class="nav-link" href="#">Promo</a></li>
             </ul>
             <div class="d-flex align-items-center gap-3">
@@ -333,17 +333,123 @@
                     <a class="sb" href="#"><i class="bi bi-twitter-x"></i></a><a class="sb" href="#"><i class="bi bi-twitch"></i></a><a class="sb" href="#"><i class="bi bi-youtube"></i></a><a class="sb" href="#"><i class="bi bi-discord"></i></a><a class="sb" href="#"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
+
             <div class="col-6 col-lg-2"><div class="fthdr">Store</div><ul class="ftl"><li><a href="#">PCs Gaming</a></li><li><a href="#">Composants</a></li><li><a href="#">Périphériques</a></li><li><a href="#">Promotions</a></li><li><a href="#">Nouveautés</a></li></ul></div>
-            <div class="col-6 col-lg-2"><div class="fthdr">Services</div><ul class="ftl"><li><a href="#">Configurateur</a></li><li><a href="#">SAV & Garantie</a></li><li><a href="#">Financement</a></li><li><a href="#">Pro & Entreprise</a></li></ul></div>
-            <div class="col-6 col-lg-2"><div class="fthdr">Aide</div><ul class="ftl"><li><a href="#">Mon compte</a></li><li><a href="#">Suivi commande</a></li><li><a href="#">Retours</a></li><li><a href="#">FAQ</a></li><li><a href="#">Contact</a></li></ul></div>
+
+            <div class="col-6 col-lg-2"><div class="fthdr">Services</div><ul class="ftl"><li><a href="#">Configurateur</a></li><li><a href="#">Garantie</a></li></ul></div>
+
+            <div class="col-6 col-lg-2"><div class="fthdr">Aide</div><ul class="ftl"><li><a href="#">Mon compte</a></li>
+                    <li><a href="#" data-bs-toggle="modal" data-bs-target="#supportModal"><i class="bi bi-headset"></i> Support</a></li>
+                    <li><a href="#">Contact</a></li></ul></div>
+
             <div class="col-6 col-lg-2"><div class="fthdr">Paiement</div><div style="display:flex;flex-wrap:wrap;gap:5px"><span class="pchip">VISA</span><span class="pchip">Mastercard</span><span class="pchip">PayPal</span><span class="pchip">Apple Pay</span><span class="pchip">3× sans frais</span></div></div>
+
         </div>
-        <div class="ftbot"><span class="ftcp">© 2025 NexCore SAS · Tous droits réservés · Mentions légales · CGV</span><span class="ftcp">Fait avec ⚡ en France</span></div>
+        <div class="ftbot"><span class="ftcp">© 2025 stardevo · Tous droits réservés · Mentions légales ·</span><span class="ftcp">developed by Otmane ghayouti</span></div>
     </div>
 </footer>
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @stack('scripts')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--midnight); border: 2px solid var(--accent); border-radius: var(--r);">
+
+            <div class="modal-header border-0 pb-0" style="position: relative;">
+                <h5 class="modal-title font-monospace w-100 text-center text-uppercase pt-3" id="supportModalLabel" style="color: var(--accent); font-family: var(--ff-d); font-size: 1.2rem; font-weight: 700;">
+                    <i class="bi bi-headset"></i> Assistance Technique
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px; font-size: 0.8rem;"></button>
+            </div>
+
+            <form action="{{ route('support.store') }}" method="POST">
+                @csrf
+                <div class="modal-body px-4 pt-3">
+
+                    @if($errors->any())
+                        <div class="alert alert-danger py-2 border-0" style="background: rgba(230, 57, 70, 0.15); color: var(--red); font-size: 0.85rem; border-radius: 6px;">
+                            <ul class="mb-0 ps-3">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                        @if(!Auth::check())                        <div class="mb-3">
+                            <label class="form-label text-uppercase font-monospace" style="font-size: 0.75rem; color: var(--text-mid); letter-spacing: 0.05em;">Votre Nom *</label>
+                            <input type="text" name="nom" class="form-control" value="{{ old('nom') }}" required style="background: var(--deep); border: 1px solid var(--border); color: var(--ghost); font-size: 0.9rem;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-uppercase font-monospace" style="font-size: 0.75rem; color: var(--text-mid); letter-spacing: 0.05em;">Votre Adresse Email *</label>
+                            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required style="background: var(--deep); border: 1px solid var(--border); color: var(--ghost); font-size: 0.9rem;">
+                        </div>
+                    @endif
+
+                    <div class="mb-3">
+                        <label class="form-label text-uppercase font-monospace" style="font-size: 0.75rem; color: var(--text-mid); letter-spacing: 0.05em;">Sujet du Message *</label>
+                        <input type="text" name="sujet" class="form-control" value="{{ old('sujet') }}" placeholder="Ex: Problème de livraison, Composant défectueux..." required style="background: var(--deep); border: 1px solid var(--border); color: var(--ghost); font-size: 0.9rem;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-uppercase font-monospace" style="font-size: 0.75rem; color: var(--text-mid); letter-spacing: 0.05em;">Description de votre problème *</label>
+                        <textarea name="message" rows="5" class="form-control" placeholder="Détaillez votre demande ici..." required style="background: var(--deep); border: 1px solid var(--border); color: var(--ghost); font-size: 0.9rem; resize: none;">{{ old('message') }}</textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="bta bta-out py-2" data-bs-dismiss="modal" style="font-size: 0.7rem; border-radius: 6px;">Annuler</button>
+                    <button type="submit" class="bta bta-fill py-2" style="font-size: 0.7rem; border-radius: 6px;">
+                        <i class="bi bi-send-fill"></i> Transmettre la demande
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@if(session('success_support'))
+    <div class="position-fixed bottom-0 start-0 m-4 p-3 rounded shadow-lg border" style="background: var(--panel); border-color: var(--accent)!important; z-index: 1050; max-width: 350px;">
+        <div class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+                <h6 class="mb-1 font-monospace text-uppercase" style="color: var(--accent); font-size: 0.85rem;">Système de Support</h6>
+                <p class="mb-0 text-white" style="font-size: 0.8rem;">{{ session('success_support') }}</p>
+            </div>
+            <button type="button" class="btn-close btn-close-white ms-auto small" onclick="this.parentElement.parentElement.remove()" style="font-size: 0.65rem;"></button>
+        </div>
+    </div>
+@endif
+    @if ($errors->any())
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById('supportModal'));
+                myModal.show();
+            });
+        </script>
+   @endif
 </body>
 </html>

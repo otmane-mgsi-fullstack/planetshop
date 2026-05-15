@@ -39,7 +39,7 @@ class DashSupportController extends Controller
         }
 
         // 3. Pagination
-        $tickets = $query->orderBy('created_at', 'desc')->paginate(15);
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
 
         return view('dashboard.support', [
             'tickets'         => $tickets,
