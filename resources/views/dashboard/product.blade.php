@@ -176,9 +176,13 @@
 
 
 
-                <button class="ib">
+
+
+
+                <a href="{{ route('products.export_pdf', request()->all()) }}" class="ib" title="Télécharger en PDF">
                     <i class="bi bi-download"></i>
-                </button>
+                </a>
+
 
                 <button class="ib">
                     <i class="bi bi-grid"></i>
@@ -261,14 +265,14 @@
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
 
-                              <!--  <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                <!--  <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    @method('DELETE')
-                                    <button class="ib">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
-                                -->
+                                @method('DELETE')
+                                <button class="ib">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+-->
 
                             </div>
                         </td>
@@ -338,9 +342,9 @@
                             <div class="col-lg-6">
                                 <label>Référence</label>
                                 <input type="text" name="reference" class="form-control product-input" style="height:48px;">
-                                    @error('reference')
-                                    <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                @error('reference')
+                                <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="col-lg-4">
@@ -460,12 +464,12 @@
 
 
 
-                <form id="editForm"
-                      method="POST"
-                      enctype="multipart/form-data">
+    <form id="editForm"
+          method="POST"
+          enctype="multipart/form-data">
 
-                    @csrf
-                    @method('PUT')
+        @csrf
+        @method('PUT')
 
 
         <input type="hidden" name="id" id="edit_id">
@@ -589,8 +593,8 @@
 
                     <div class="modal-footer border-0">
 
-                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Annuler</button>
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Annuler</button>
 
                         <button type="submit"
                                 class="btn btn-warning btn-sm">
@@ -650,3 +654,4 @@
 
 </body>
 </html>
+

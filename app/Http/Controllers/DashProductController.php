@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashProductController extends Controller
 {
@@ -53,6 +54,37 @@ class DashProductController extends Controller
 
 
 
+    public function exportPdf(Request $request)
+    {
+        $query = Product::with('category');
+
+        // SEARCH
+        if ($request->search) {
+            $query->where('nom', 'like', '%' . $request->search . '%');
+        }
+
+        // CATEGORY
+        if ($request->category) {
+            $query->where('categorie_id', $request->category);
+        }
+
+        // STOCK STATUS
+        if ($request->stock_status) {
+            if ($request->stock_status == 'in_stock') {
+                $query->where('stock', '>', 10);
+            } elseif ($request->stock_status == 'low_stock') {
+                $query->whereBetween('stock', [1, 10]);
+            } elseif ($request->stock_status == 'out') {
+                $query->where('stock', 0);
+            }
+        }
+
+        $products = $query->get();
+
+        $pdf = Pdf::loadView('dashboard.pdf.products', compact('products'));
+        return $pdf->download('liste_produits.pdf');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -60,9 +92,9 @@ class DashProductController extends Controller
             'categorie_id' => 'required|exists:categories,id',
             'reference' => 'nullable|string|max:255',
             'prix' => 'required|numeric',
-            'prix_promotion' => 'required|numeric',
+            'prix_promotion' => 'nullable|numeric',
             'stock' => 'required|integer',
-            'marque' => 'required|string|max:255',
+            'marque' => 'nullable|string|max:255',
 
             'processeur' => 'nullable|string',
             'carte_graphique' => 'nullable|string',
@@ -79,7 +111,7 @@ class DashProductController extends Controller
             'meta_titre' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
 
-            'miniature' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'miniature' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // SLUG UNIQUE
@@ -120,11 +152,11 @@ class DashProductController extends Controller
         $data = $request->validate([
             'nom' => 'required|string',
             'prix' => 'required|numeric',
-            'prix_promotion' => 'required|numeric',
+            'prix_promotion' => 'nullable|numeric',
             'stock' => 'required|integer',
-            'courte_description' => 'required|string',
-            'description' => 'required|string',
-            'marque' => 'required|string',
+            'courte_description' => 'nullable|string',
+            'description' => 'nullable|string',
+            'marque' => 'nullable|string',
             'processeur' => 'nullable|string',
             'carte_graphique' => 'nullable|string',
             'memoire_ram' => 'nullable|string',
@@ -135,7 +167,7 @@ class DashProductController extends Controller
             'boitier' => 'nullable|string',
             'meta_titre' => 'nullable|string',
             'meta_description' => 'nullable|string',
-            'miniature' => 'required|image|max:2048',
+            'miniature' => 'nullable|image|max:2048',
         ]);
 
         $data['actif'] = $request->has('actif') ? 1 : 0;

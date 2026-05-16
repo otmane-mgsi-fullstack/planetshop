@@ -63,6 +63,8 @@ Route::middleware(['auth', 'role:admin'])
         */
         Route::get('/products', [DashProductController::class, 'index'])
             ->name('dash.product');
+        Route::get('/dash/products/export-pdf', [DashProductController::class, 'exportPdf'])
+            ->name('products.export_pdf');
 
         Route::post('/products', [DashProductController::class, 'store'])->name('products.store');
         Route::put('/products/{product}', [DashProductController::class, 'update'])->name('products.update');

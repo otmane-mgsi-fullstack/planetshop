@@ -20,6 +20,9 @@ class DashIndexController extends Controller
         $totalClients = Client::count();
         $totalProducts = Product::count();
 
+        $completedOrdersCount = Order::where('statut_commande', 'livree')->count();
+        $panierMoyen = $completedOrdersCount > 0 ? $totalRevenue / $completedOrdersCount : 0;
+
         // ==========================================
         // 2. DONNÉES DU GRAPHIQUE (TOP 5 PRODUITS)
         // ==========================================
@@ -53,7 +56,56 @@ class DashIndexController extends Controller
         $categorySalesData = $categorySales->pluck('chiffre_affaires')->toArray();
 
         // ==========================================
-        // 4. DERNIÈRES COMMANDES
+        // 4. DONNÉES DU GRAPHIQUE (REVENUS 12 MOIS)
+        // ==========================================
+        $revenueChartLabels = [];
+        $revenueChartData = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthName = $date->translatedFormat('M Y');
+
+            $sum = Order::where('statut_commande', 'livree')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->sum('montant_total');
+
+            $revenueChartLabels[] = ucfirst($monthName);
+            $revenueChartData[] = $sum;
+        }
+
+        // ==========================================
+        // 5. ACQUISITION CLIENTS (6 DERNIERS MOIS)
+        // ==========================================
+        $clientAcquisitionLabels = [];
+        $clientAcquisitionData = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthName = $date->translatedFormat('M Y');
+
+            $count = Client::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+
+            $clientAcquisitionLabels[] = ucfirst($monthName);
+            $clientAcquisitionData[] = $count;
+        }
+
+        // ==========================================
+        // 6. RÉPARTITION DES MÉTHODES DE PAIEMENT
+        // ==========================================
+        $paymentMethods = Order::select('methode_paiement', DB::raw('count(*) as total'))
+            ->groupBy('methode_paiement')
+            ->get();
+
+        $paymentMethodLabels = $paymentMethods->pluck('methode_paiement')->map(function ($item) {
+            return $item === 'paiement_livraison' ? 'Paiement à la livraison' : 'Virement bancaire';
+        })->toArray();
+        $paymentMethodData = $paymentMethods->pluck('total')->toArray();
+
+        // ==========================================
+        // 7. DERNIÈRES COMMANDES
         // ==========================================
         $recentOrders = Order::with('client')
             ->latest()
@@ -65,10 +117,17 @@ class DashIndexController extends Controller
             'pendingOrders',
             'totalClients',
             'totalProducts',
+            'panierMoyen',
             'topProductsLabels',
             'topProductsData',
             'categorySalesLabels',
             'categorySalesData',
+            'revenueChartLabels',
+            'revenueChartData',
+            'clientAcquisitionLabels',
+            'clientAcquisitionData',
+            'paymentMethodLabels',
+            'paymentMethodData',
             'recentOrders'
         ));
     }

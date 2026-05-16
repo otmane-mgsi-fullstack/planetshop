@@ -6,7 +6,7 @@
         /* ─── KPI CARDS ─────────────────────────────────────── */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 24px;
         }
@@ -33,6 +33,7 @@
         .kpi-card.blue::before   { background: #4a90e2; }
         .kpi-card.purple::before { background: #8b5cf6; }
         .kpi-card.teal::before   { background: #10b981; }
+        .kpi-card.green::before  { background: #27ae60; }
 
         .kpi-label {
             font-size: 11.5px; font-weight: 600;
@@ -62,6 +63,7 @@
         .kpi-card.blue   .kpi-icon { background: rgba(74,144,226,.12);      color: #4a90e2; }
         .kpi-card.purple .kpi-icon { background: rgba(139,92,246,.12);      color: #8b5cf6; }
         .kpi-card.teal   .kpi-icon { background: rgba(16,185,129,.12);      color: #10b981; }
+        .kpi-card.green  .kpi-icon { background: rgba(39,174,96,.12);       color: #27ae60; }
 
         /* ─── CHARTS GRID ───────────────────────────────────── */
         .chart-grid {
@@ -69,6 +71,9 @@
             grid-template-columns: 2fr 1fr;
             gap: 20px;
             margin-bottom: 24px;
+        }
+        .chart-grid.full {
+            grid-template-columns: 1fr;
         }
 
         .chart-card {
@@ -183,11 +188,7 @@
 
         /* ─── RESPONSIVE ────────────────────────────────────── */
         @media (max-width: 1200px) {
-            .kpi-grid   { grid-template-columns: repeat(2, 1fr); }
             .chart-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 768px) {
-            .kpi-grid { grid-template-columns: 1fr; }
         }
     </style>
 
@@ -197,6 +198,11 @@
             <div class="kpi-icon"><i class="bi bi-wallet2"></i></div>
             <div class="kpi-label">Chiffre d'Affaires</div>
             <div class="kpi-value">{{ number_format($totalRevenue ?? 0, 2, ',', ' ') }} MAD</div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-icon"><i class="bi bi-cart-check"></i></div>
+            <div class="kpi-label">Panier Moyen</div>
+            <div class="kpi-value">{{ number_format($panierMoyen ?? 0, 2, ',', ' ') }} MAD</div>
         </div>
         <div class="kpi-card blue">
             <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
@@ -215,7 +221,27 @@
         </div>
     </div>
 
-    <!-- CHARTS -->
+    <!-- CHARTS ROW 1 -->
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div class="chart-card-title">Évolution des Revenus (12 derniers mois)</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div class="chart-card-title">Chiffre d'Affaires par Catégorie</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="categorySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
     <div class="chart-grid">
         <div class="chart-card">
             <div class="chart-card-header">
@@ -225,13 +251,24 @@
                 <canvas id="topProductsChart"></canvas>
             </div>
         </div>
-
         <div class="chart-card">
             <div class="chart-card-header">
-                <div class="chart-card-title">Chiffre d'Affaires par Catégorie</div>
+                <div class="chart-card-title">Méthodes de Paiement</div>
             </div>
             <div class="chart-container">
-                <canvas id="categorySalesChart"></canvas>
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS ROW 3 -->
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div class="chart-card-title">Acquisition Clients (6 derniers mois)</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="clientAcquisitionChart"></canvas>
             </div>
         </div>
     </div>
@@ -265,11 +302,11 @@
                             <td>{{ $order->created_at }}</td>
                             <td><strong>{{ number_format($order->montant_total, 2, ',', ' ') }} MAD</strong></td>
                             <td>
-                                @if(strtolower($order->statut_commande) == 'livré')
+                                @if(strtolower($order->statut_commande) == 'livree')
                                     <span class="status-badge s-success">Livré</span>
-                                @elseif(strtolower($order->statut_commande) == 'en transit')
+                                @elseif(strtolower($order->statut_commande) == 'en_transit')
                                     <span class="status-badge s-info">En transit</span>
-                                @elseif(strtolower($order->statut_commande) == 'annulé')
+                                @elseif(strtolower($order->statut_commande) == 'annulee')
                                     <span class="status-badge s-danger">Annulé</span>
                                 @else
                                     <span class="status-badge s-warn">En attente</span>
@@ -296,29 +333,82 @@
 
             const html = document.documentElement;
 
-            /* Lire une variable CSS du thème actuel */
             function cv(v) {
                 return getComputedStyle(html).getPropertyValue(v).trim();
             }
 
-            /* Détecter dark mode */
             function isDark() {
                 return html.getAttribute('data-theme') === 'dark';
             }
 
-            /* ── TOP PRODUCTS CHART (bar) ─────────────────────── */
-            const ctxTopProducts = document.getElementById('topProductsChart').getContext('2d');
+            // TOOLTIP OPTIONS REUSABLE
+            const getTooltipOptions = (dark) => ({
+                backgroundColor: dark ? '#1a2335' : '#fff',
+                borderColor:     dark ? '#283044' : '#e5e9f2',
+                borderWidth: 1,
+                titleColor: dark ? '#e8edf7' : '#1a2540',
+                bodyColor:  dark ? '#8a97b0' : '#5a6880',
+                padding: 12,
+                titleFont: { family: 'Syne', size: 13, weight: '700' },
+                bodyFont:  { family: 'DM Sans', size: 13 },
+            });
 
+            // GLOBALS
+            let revenueChart, topProductsChart, categorySalesChart, paymentMethodChart, clientAcquisitionChart;
+
+            // 1. REVENUE CHART
+            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            const revenueLabels = {!! json_encode($revenueChartLabels ?? []) !!};
+            const revenueData   = {!! json_encode($revenueChartData   ?? []) !!};
+
+            function buildRevenueChart() {
+                if (revenueChart) revenueChart.destroy();
+                const dark = isDark();
+                const grad = ctxRevenue.createLinearGradient(0, 0, 0, 300);
+                grad.addColorStop(0, dark ? 'rgba(255,107,0,.30)' : 'rgba(255,107,0,.22)');
+                grad.addColorStop(1, 'rgba(255,107,0,0)');
+
+                revenueChart = new Chart(ctxRevenue, {
+                    type: 'line',
+                    data: {
+                        labels: revenueLabels,
+                        datasets: [{
+                            label: "Chiffre d'Affaires",
+                            data: revenueData,
+                            borderColor: '#ff6b00',
+                            backgroundColor: grad,
+                            borderWidth: 3,
+                            pointBackgroundColor: dark ? '#1a2335' : '#ffffff',
+                            pointBorderColor: '#ff6b00',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { ...getTooltipOptions(dark), callbacks: { label: ctx => '  ' + ctx.parsed.y.toLocaleString('fr-FR') + ' MAD' } }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3') } },
+                            y: { grid: { color: cv('--border') }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3'), callback: v => v >= 1000 ? (v/1000) + 'k' : v }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // 2. TOP PRODUCTS CHART
+            const ctxTopProducts = document.getElementById('topProductsChart').getContext('2d');
             const topProductsLabels = {!! json_encode($topProductsLabels ?? []) !!};
             const topProductsData   = {!! json_encode($topProductsData   ?? []) !!};
 
-            let topProductsChart, categorySalesChart;
-
             function buildTopProductsChart() {
                 if (topProductsChart) topProductsChart.destroy();
-
                 const dark = isDark();
-
                 const grad = ctxTopProducts.createLinearGradient(0, 0, 0, 300);
                 grad.addColorStop(0, dark ? '#ff8c33' : '#ff6b00');
                 grad.addColorStop(1, dark ? 'rgba(255,107,0,.30)' : 'rgba(255,107,0,.8)');
@@ -327,122 +417,137 @@
                     type: 'bar',
                     data: {
                         labels: topProductsLabels,
-                        datasets: [{
-                            label: "Quantité vendue",
-                            data: topProductsData,
-                            backgroundColor: grad,
-                            borderRadius: 6,
-                            borderSkipped: false,
-                            barPercentage: 0.6,
-                        }]
+                        datasets: [{ label: "Quantité vendue", data: topProductsData, backgroundColor: grad, borderRadius: 6, borderSkipped: false, barPercentage: 0.6 }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
-                                backgroundColor: dark ? '#1a2335' : '#fff',
-                                borderColor:     dark ? '#283044' : '#e5e9f2',
-                                borderWidth: 1,
-                                titleColor: dark ? '#e8edf7' : '#1a2540',
-                                bodyColor:  dark ? '#8a97b0' : '#5a6880',
-                                padding: 12,
-                                titleFont: { family: 'Syne', size: 13, weight: '700' },
-                                bodyFont:  { family: 'DM Sans', size: 13 },
-                            }
+                            tooltip: getTooltipOptions(dark)
                         },
                         scales: {
-                            x: {
-                                grid: { display: false },
-                                border: { display: false },
-                                ticks: { font: { family: 'DM Sans' }, color: cv('--text-3') }
-                            },
-                            y: {
-                                grid: { color: cv('--border'), drawBorder: false },
-                                border: { display: false },
-                                ticks: {
-                                    font: { family: 'DM Sans' },
-                                    color: cv('--text-3'),
-                                    stepSize: 1
-                                },
-                                beginAtZero: true
-                            }
+                            x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3') } },
+                            y: { grid: { color: cv('--border'), drawBorder: false }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3'), stepSize: 1 }, beginAtZero: true }
                         }
                     }
                 });
             }
 
-            /* ── CATEGORY SALES CHART (doughnut) ───────────────────── */
+            // 3. CATEGORY SALES CHART
             const ctxCategorySales = document.getElementById('categorySalesChart').getContext('2d');
             const categorySalesLabels = {!! json_encode($categorySalesLabels ?? []) !!};
             const categorySalesData = {!! json_encode($categorySalesData ?? []) !!};
 
             function buildCategorySalesChart() {
                 if (categorySalesChart) categorySalesChart.destroy();
-
                 const dark = isDark();
-
                 const colors = ['#ff6b00', '#4a90e2', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 
                 categorySalesChart = new Chart(ctxCategorySales, {
                     type: 'doughnut',
                     data: {
                         labels: categorySalesLabels.length > 0 ? categorySalesLabels : ['Aucune donnée'],
-                        datasets: [{
-                            data: categorySalesData.length > 0 ? categorySalesData : [1],
-                            backgroundColor: categorySalesData.length > 0 ? colors : [dark ? '#1a2335' : '#e5e9f2'],
-                            borderWidth: dark ? 2 : 3,
-                            borderColor: cv('--surface'),
-                            hoverOffset: 6
-                        }]
+                        datasets: [{ data: categorySalesData.length > 0 ? categorySalesData : [1], backgroundColor: categorySalesData.length > 0 ? colors : [dark ? '#1a2335' : '#e5e9f2'], borderWidth: dark ? 2 : 3, borderColor: cv('--surface'), hoverOffset: 6 }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%',
+                        responsive: true, maintainAspectRatio: false, cutout: '75%',
                         plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 18,
-                                    font: { family: 'DM Sans', size: 12 },
-                                    color: cv('--text-2')
-                                }
-                            },
-                            tooltip: {
-                                enabled: categorySalesData.length > 0,
-                                backgroundColor: dark ? '#1a2335' : '#fff',
-                                borderColor:     dark ? '#283044' : '#e5e9f2',
-                                borderWidth: 1,
-                                titleColor: dark ? '#e8edf7' : '#1a2540',
-                                bodyColor:  dark ? '#8a97b0' : '#5a6880',
-                                padding: 12,
-                                bodyFont: { family: 'DM Sans', size: 13 },
-                                callbacks: {
-                                    label: ctx => '  ' + ctx.parsed.toLocaleString('fr-FR') + ' MAD'
-                                }
-                            }
+                            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18, font: { family: 'DM Sans', size: 12 }, color: cv('--text-2') } },
+                            tooltip: { ...getTooltipOptions(dark), enabled: categorySalesData.length > 0, callbacks: { label: ctx => '  ' + ctx.parsed.toLocaleString('fr-FR') + ' MAD' } }
                         }
                     }
                 });
             }
 
-            /* Build initial */
-            buildTopProductsChart();
-            buildCategorySalesChart();
+            // 4. PAYMENT METHODS CHART
+            const ctxPaymentMethod = document.getElementById('paymentMethodChart').getContext('2d');
+            const paymentMethodLabels = {!! json_encode($paymentMethodLabels ?? []) !!};
+            const paymentMethodData = {!! json_encode($paymentMethodData ?? []) !!};
 
-            /* Rebuild quand le thème change (le bouton dispatch un event) */
+            function buildPaymentMethodChart() {
+                if (paymentMethodChart) paymentMethodChart.destroy();
+                const dark = isDark();
+                const colors = ['#4a90e2', '#10b981', '#ff6b00', '#8b5cf6'];
+
+                paymentMethodChart = new Chart(ctxPaymentMethod, {
+                    type: 'pie',
+                    data: {
+                        labels: paymentMethodLabels.length > 0 ? paymentMethodLabels : ['Aucune donnée'],
+                        datasets: [{ data: paymentMethodData.length > 0 ? paymentMethodData : [1], backgroundColor: paymentMethodData.length > 0 ? colors : [dark ? '#1a2335' : '#e5e9f2'], borderWidth: dark ? 2 : 3, borderColor: cv('--surface'), hoverOffset: 6 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18, font: { family: 'DM Sans', size: 12 }, color: cv('--text-2') } },
+                            tooltip: { ...getTooltipOptions(dark), enabled: paymentMethodData.length > 0 }
+                        }
+                    }
+                });
+            }
+
+            // 5. CLIENT ACQUISITION CHART
+            const ctxClientAcquisition = document.getElementById('clientAcquisitionChart').getContext('2d');
+            const clientAcquisitionLabels = {!! json_encode($clientAcquisitionLabels ?? []) !!};
+            const clientAcquisitionData = {!! json_encode($clientAcquisitionData ?? []) !!};
+
+            function buildClientAcquisitionChart() {
+                if (clientAcquisitionChart) clientAcquisitionChart.destroy();
+                const dark = isDark();
+                const grad = ctxClientAcquisition.createLinearGradient(0, 0, 0, 300);
+                grad.addColorStop(0, dark ? 'rgba(139,92,246,.30)' : 'rgba(139,92,246,.22)');
+                grad.addColorStop(1, 'rgba(139,92,246,0)');
+
+                clientAcquisitionChart = new Chart(ctxClientAcquisition, {
+                    type: 'line',
+                    data: {
+                        labels: clientAcquisitionLabels,
+                        datasets: [{
+                            label: "Nouveaux Clients",
+                            data: clientAcquisitionData,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: grad,
+                            borderWidth: 3,
+                            pointBackgroundColor: dark ? '#1a2335' : '#ffffff',
+                            pointBorderColor: '#8b5cf6',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: getTooltipOptions(dark)
+                        },
+                        scales: {
+                            x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3') } },
+                            y: { grid: { color: cv('--border') }, border: { display: false }, ticks: { font: { family: 'DM Sans' }, color: cv('--text-3'), stepSize: 1 }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Build all initial
+            const buildAll = () => {
+                buildRevenueChart();
+                buildTopProductsChart();
+                buildCategorySalesChart();
+                buildPaymentMethodChart();
+                buildClientAcquisitionChart();
+            };
+
+            buildAll();
+
+            /* Rebuild quand le thème change */
             document.getElementById('themeBtn')?.addEventListener('click', () => {
-                /* Léger délai pour laisser data-theme se mettre à jour */
-                setTimeout(() => {
-                    buildTopProductsChart();
-                    buildCategorySalesChart();
-                }, 50);
+                setTimeout(buildAll, 50);
             });
 
         });
     </script>
 
 @endsection
+
