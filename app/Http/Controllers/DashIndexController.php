@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Order;
@@ -15,21 +16,24 @@ class DashIndexController extends Controller
         // ==========================================
         // 1. KPIs GLOBAUX
         // ==========================================
-        $totalRevenue = Order::where('statut_commande', 'livree')->sum('montant_total');
+        // Le chiffre d'affaires est maintenant basé sur le statut de paiement 'paye'
+        $totalRevenue = Order::where('statut_paiement', 'paye')->sum('montant_total');
         $pendingOrders = Order::where('statut_commande', 'en_attente')->count();
         $totalClients = Client::count();
         $totalProducts = Product::count();
 
-        $completedOrdersCount = Order::where('statut_commande', 'livree')->count();
-        $panierMoyen = $completedOrdersCount > 0 ? $totalRevenue / $completedOrdersCount : 0;
+        // Le panier moyen est calculé sur la base des commandes payées
+        $paidOrdersCount = Order::where('statut_paiement', 'paye')->count();
+        $panierMoyen = $paidOrdersCount > 0 ? $totalRevenue / $paidOrdersCount : 0;
 
         // ==========================================
         // 2. DONNÉES DU GRAPHIQUE (TOP 5 PRODUITS)
         // ==========================================
+        // Produits vendus issus des commandes payées
         $topProducts = DB::table('order_items')
             ->join('products', 'order_items.produit_id', '=', 'products.id')
             ->join('orders', 'order_items.commande_id', '=', 'orders.id')
-            ->where('orders.statut_commande', 'livree')
+            ->where('orders.statut_paiement', 'paye')
             ->select('products.nom', DB::raw('SUM(order_items.quantite) as total_vendus'))
             ->groupBy('products.id', 'products.nom')
             ->orderByDesc('total_vendus')
@@ -42,11 +46,12 @@ class DashIndexController extends Controller
         // ==========================================
         // 3. DONNÉES DU GRAPHIQUE (VENTES PAR CATÉGORIE)
         // ==========================================
+        // Chiffre d'affaires par catégorie basé sur les commandes payées
         $categorySales = DB::table('order_items')
             ->join('products', 'order_items.produit_id', '=', 'products.id')
             ->join('categories', 'products.categorie_id', '=', 'categories.id')
             ->join('orders', 'order_items.commande_id', '=', 'orders.id')
-            ->where('orders.statut_commande', 'livree')
+            ->where('orders.statut_paiement', 'paye')
             ->select('categories.nom', DB::raw('SUM(order_items.prix_total) as chiffre_affaires'))
             ->groupBy('categories.id', 'categories.nom')
             ->orderByDesc('chiffre_affaires')
@@ -65,7 +70,8 @@ class DashIndexController extends Controller
             $date = Carbon::now()->subMonths($i);
             $monthName = $date->translatedFormat('M Y');
 
-            $sum = Order::where('statut_commande', 'livree')
+            // Revenu mensuel basé sur 'paye'
+            $sum = Order::where('statut_paiement', 'paye')
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum('montant_total');

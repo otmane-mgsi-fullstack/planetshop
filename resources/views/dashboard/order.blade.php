@@ -479,9 +479,11 @@
                 <input type="date" name="date" class="form-control" style="width: 160px;" value="{{ request('date') }}" />
                 <button type="submit" class="btn-outline"><i class="bi bi-funnel"></i> Filtrer</button>
             </div>
-            <div class="filters-group">
-                <button type="button" class="btn-outline"><i class="bi bi-download"></i> Exporter CSV</button>
-            </div>
+
+
+            <a href="{{ route('orders.export.csv') }}" class="btn-outline">
+                <i class="bi bi-download"></i> Exporter CSV
+            </a>
         </form>
 
         <!-- TABLE -->
@@ -520,7 +522,7 @@
                                 <td>
                                     {{ $order->created_at }}<br>
                                 </td>
-                                <td><strong>{{ number_format($order->montant_total ?? 0, 2, ',', ' ') }} €</strong></td>
+                                <td><strong>{{ number_format($order->montant_total ?? 0, 2, ',', ' ') }}  MAD</strong></td>
                                 <td>
                                     @if(strtolower($order->statut_commande) == 'livree')
                                         <span class="status-badge s-success">Livrée</span>

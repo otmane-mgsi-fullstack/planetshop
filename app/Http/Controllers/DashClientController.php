@@ -123,4 +123,68 @@ class DashClientController extends Controller
         $client->delete();
         return redirect()->back()->with('success', 'Le client a été supprimé.');
     }
+
+
+
+
+    public function exportCsv()
+    {
+        $fileName = 'clients.csv';
+
+        $clients = Client::withCount('commandes')
+            ->withSum('commandes', 'montant_total')
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=$fileName",
+        ];
+
+        $callback = function () use ($clients) {
+
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 Excel fix
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // HEADER
+            fputcsv($file, [
+                'ID',
+                'Prenom',
+                'Nom',
+                'Email',
+                'Telephone',
+                'Ville',
+                'Pays',
+                'Nombre Commandes',
+                'Total Depense',
+                'Statut',
+                'Date inscription',
+            ], ';');
+
+            // DATA
+            foreach ($clients as $client) {
+
+                fputcsv($file, [
+                    $client->id,
+                    $client->prenom,
+                    $client->nom,
+                    $client->email,
+                    $client->telephone,
+                    $client->ville,
+                    $client->pays,
+                    $client->orders_count ?? 0,
+                    number_format($client->orders_sum_montant_total ?? 0, 2, ',', ' ') . ' MAD',
+                    $client->actif ? 'Actif' : 'Inactif',
+                    $client->created_at->format('d/m/Y H:i'),
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
 }

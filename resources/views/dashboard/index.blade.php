@@ -45,9 +45,9 @@
 
         .kpi-value {
             font-family: var(--fh);
-            font-size: 28px; font-weight: 800;
+            font-size: 18px; font-weight: 400;
             color: var(--text-1);
-            line-height: 1; margin-bottom: 10px;
+            line-height: 1; margin-bottom: 20px;
             transition: color .3s;
         }
 

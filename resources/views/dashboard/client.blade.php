@@ -440,6 +440,9 @@
         </div>
         <div class="filters-group">
             <button type="button" class="btn-outline-custom"><i class="bi bi-download"></i> Exporter CSV</button>
+            <a href="{{ route('clients.export.csv') }}" class="btn-outline-custom">
+                <i class="bi bi-download"></i> Exporter CSV
+            </a>
             <button type="button" class="btn-orange"
                     data-bs-toggle="modal" data-bs-target="#addClientModal">
                 <i class="bi bi-person-plus-fill"></i> Ajouter Client

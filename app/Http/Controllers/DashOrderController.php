@@ -93,4 +93,56 @@ class DashOrderController extends Controller
     }
 
 
+    public function exportCsv()
+    {
+        $fileName = 'orders.csv';
+
+        $orders = Order::all();
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=$fileName",
+        ];
+
+        $callback = function () use ($orders) {
+
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 pour Excel
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // HEADER
+            fputcsv($file, [
+                'ID',
+                'Client',
+                'Email',
+                'Téléphone',
+                'Total',
+                'Statut Commande',
+                'Paiement',
+                'Date'
+            ], ';');
+
+            // DATA
+            foreach ($orders as $order) {
+
+                fputcsv($file, [
+                    $order->id,
+                    $order->nom_client,
+                    $order->email_client,
+                    $order->telephone_client,
+                    $order->montant_total . ' MAD',
+                    $order->statut_commande,
+                    $order->statut_paiement,
+                    $order->created_at->format('Y-m-d H:i'),
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
 }

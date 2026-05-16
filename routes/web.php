@@ -96,6 +96,8 @@ Route::middleware(['auth', 'role:admin'])
             ->name('clients.destroy');
         Route::post('/clients/{client}/toggle', [App\Http\Controllers\DashClientController::class, 'toggleStatus'])
             ->name('clients.toggle');
+        Route::get('/clients/export/csv', [DashClientController::class, 'exportCsv'])
+            ->name('clients.export.csv');
         /*
         | ORDERS
         */
@@ -104,7 +106,8 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::put('/orders/{order}', [DashOrderController::class, 'update'])->name('orders.update');
         Route::delete('/orders/{order}', [DashOrderController::class, 'destroy'])->name('orders.destroy');
-
+        Route::get('/orders/export/csv', [DashOrderController::class, 'exportCsv'])
+            ->name('orders.export.csv');
 
 
         //Route::prefix('admin/support')->name('admin.support.')->group(function () {
